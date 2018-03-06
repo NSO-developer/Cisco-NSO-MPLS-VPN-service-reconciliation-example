@@ -1,0 +1,4997 @@
+module junos-rpc {
+  namespace "urn:juniper-rpc";
+  prefix jrpc;
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+
+  import ietf-yang-types {
+    prefix yang;
+  }
+
+  typedef mac-addr {
+    type string;
+  }
+  typedef ipaddr {
+    type string;
+  }
+  typedef ipprefix-optional {
+    type string;
+  }
+  typedef int {
+    type int64;
+  }
+  typedef uint {
+    type uint64;
+  }
+  typedef filename {
+    type string;
+  }
+  typedef slice {
+    type enumeration {
+      enum 1 {
+        description "Show snapshot information from first partition";
+      }
+      enum 2 {
+        description "Show snapshot information from second partition";
+      }
+      enum alternate {
+        description "Show snapshot information from alternate partition";
+      }
+    }
+  }
+
+  // clear bgp neighbor
+  rpc clear-bgp-neighbor {
+    description "Clear BGP neighbors";
+    input {
+      choice choice-logical-system {
+        leaf logical-system {
+          type string;
+          description "Name of logical system, or 'all'";
+        }
+        leaf fabric {
+          description "Internal fabric state";
+          type empty;
+        }
+      }
+      choice choice-soft {
+        leaf soft {
+          description "Soft reset outbound state";
+          type empty;
+        }
+        leaf soft-minimum-igp {
+          description
+            "Soft reset outbound state with refresh of minimum igp MED";
+          type empty;
+        }
+        leaf soft-inbound {
+          description "Soft reset inbound state by issuing Refresh";
+          type empty;
+        }
+      }
+      leaf instance {
+        type string;
+        description "Name of BGP instance";
+      }
+      leaf as {
+        type string;
+        description
+          "Autonomous system number in plain number or 'higher 16bits'.
+           'Lower 16 bits' (asdot notation) format";
+      }
+      leaf neighbor {
+        type string;
+        description "Particular BGP neighbor to clear";
+      }
+    }
+    output {
+      // No output in normal case
+      container error {
+        leaf source-daemon {
+          type string;
+        }
+        leaf message {
+          type string;
+        }
+      }
+    }
+  }
+
+  // clear log
+  rpc clear-log {
+    description "Clear contents of log file";
+    input {
+      leaf filename {
+        mandatory true;
+        type string;
+        description "Name of log file";
+      }
+      leaf all {
+        description "Also delete all archive (.gz) files for specified file";
+        type empty;
+      }
+    }
+  }
+
+  // file archive
+  rpc file-archive {
+    description "Archives files from the system";
+    input {
+      leaf compress {
+        description "Compresses the archived file using GNU gzip (.tgz)";
+        type empty;
+      }
+      leaf destination {
+        mandatory true;
+        type string;
+        description "Name of created archive (URL, local, remote, or floppy)";
+      }
+      leaf source {
+        mandatory true;
+        type string;
+        description "Path of directory to archive";
+      }
+    }
+  }
+
+  // file compare
+  rpc file-compare {
+    description "Compare files";
+    input {
+      choice choice-context {
+        leaf context {
+          description "Context style output format";
+          type empty;
+        }
+        leaf unified {
+          description "Unified style output format";
+          type empty;
+        }
+      }
+      leaf ignore-white-space {
+        description "Ignore changes in amount of white space";
+        type empty;
+      }
+      leaf from-file {
+        mandatory true;
+        type string;
+        description "File to compare";
+      }
+      leaf to-file {
+        mandatory true;
+        type string;
+        description "File to compare against";
+      }
+    }
+    output {
+      leaf output {
+        type string;
+      }
+    }
+  }
+
+  // file copy
+  rpc file-copy {
+    description "Copy files (local or remote)";
+    input {
+      leaf source {
+        mandatory true;
+        type string;
+        description "URL of source file";
+      }
+      leaf destination {
+        mandatory true;
+        type string;
+        description "URL of destination file";
+      }
+      leaf source-address {
+        type string;
+        description "Local address to use in originating the connection";
+      }
+    }
+  }
+
+  // file delete
+  rpc file-delete {
+    description "Delete files from the system";
+    input {
+      leaf purge {
+        description "Overwrite regular files before deleting them";
+        type empty;
+      }
+      leaf path {
+        mandatory true;
+        type string;
+        description "Path to delete";
+      }
+    }
+    output {
+      leaf output {
+        type string;
+      }
+    }
+  }
+
+  // (no corresponding cli command)
+  rpc file-get {
+    description "Get file from device with contents inlined";
+    input {
+      leaf filename {
+        mandatory true;
+        type filename;
+        description "Name of source file on device";
+      }
+      leaf encoding {
+        mandatory true;
+        type string;
+        description "Encoding type: ascii, base64, or raw";
+      }
+    }
+    output {
+      container file-get-results {
+        leaf file-contents {
+          type string;
+        }
+        leaf success {
+          description "Rescue configuration operation succeeded";
+          type empty;
+        }
+      }
+    }
+  }
+
+  // file list
+  rpc file-list {
+    description "List file information";
+    input {
+      choice choice-detail {
+        leaf detail {
+          description "Display detailed output (like 'ls -l')";
+          type empty;
+        }
+        leaf recursive {
+          description "Descend recursively through directory hierarchy";
+          type empty;
+        }
+      }
+      leaf path {
+        type string;
+        description "Path to list";
+      }
+    }
+    output {
+      container directory-list {
+        description "Show directory contents";
+        // <rpc-tag>get-system-archival</rpc-tag>
+        // <rpc-tag>file-list</rpc-tag>
+        // <rpc-tag>get-system-core-dumps</rpc-tag>
+        container directory {
+          description "Information about system directory usage";
+          leaf directory-name {
+            type string;
+            description "Directory name";
+          }
+          leaf total-file-blocks {
+            type int;
+            description
+              "Total number of blocks used by files in this directory";
+          }
+          leaf total-files {
+            type int;
+            description "Total number of files in this directory";
+          }
+          container file-information {
+            leaf file-permissions {
+              type string;
+              description "File permissions";
+            }
+            leaf file-links {
+              type int;
+              description "Number of links";
+            }
+            leaf file-owner {
+              type string;
+              description "File owner";
+            }
+            leaf file-group {
+              type string;
+              description "File group";
+            }
+            leaf file-size {
+              type int;
+              description "File size";
+            }
+            leaf file-date {
+              type int;
+              description "File date";
+            }
+            leaf file-name {
+              type string;
+              description "File name";
+            }
+            leaf file-executable {
+              description "File is executable";
+              type empty;
+            }
+            leaf file-directory {
+              description "File is a directory";
+              type empty;
+            }
+            leaf file-symlink {
+              description "File is a symlink";
+              type empty;
+            }
+            leaf file-symlink-target {
+              type string;
+              description "Symlink location";
+            }
+          }
+          leaf used-space {
+            type string;
+            description "Total amount of space used";
+          }
+        }
+      }
+    }
+  }
+
+  // (no corresponding cli command)
+  rpc file-put {
+    description "Put file onto device with contents inlined";
+    input {
+      leaf filename {
+        mandatory true;
+        type filename;
+        description "Name of destination file on device";
+      }
+      leaf permission {
+        type string;
+        description "Name of destination file on device";
+      }
+      leaf encoding {
+        mandatory true;
+        type string;
+        description "Encoding type: ascii or base64";
+      }
+      leaf delete-if-exist {
+        description
+          "Delete the destination file on device if it already exists";
+        type empty;
+      }
+      leaf file-contents {
+        mandatory true;
+        type string;
+        description "File content";
+      }
+    }
+    output {
+      container file-put-results {
+        leaf success {
+          description "Rescue configuration operation succeeded";
+          type empty;
+        }
+        leaf filename {
+          type string;
+        }
+      }
+    }
+  }
+
+  // file rename
+  rpc file-rename {
+    description "Rename files";
+    input {
+      leaf source {
+        mandatory true;
+        type string;
+        description "Source URL";
+      }
+      leaf destination {
+        mandatory true;
+        type string;
+        description "Destination URL";
+      }
+    }
+  }
+
+  // file show
+  rpc file-show {
+    description "Show file contents";
+    input {
+      leaf filename {
+        mandatory true;
+        type filename;
+        description "Filename to show";
+      }
+      leaf encoding {
+        description "Encode file contents";
+        type enumeration {
+          enum base64 {
+            description "Encode file with base64 encoding";
+          }
+          enum raw {
+            description "Show raw text from file";
+          }
+        }
+      }
+    }
+    output {
+      leaf file-content {
+        type string;
+      }
+    }
+  }
+
+  // show chassis alarms
+  rpc get-alarm-information {
+    // No input
+    output {
+      uses alarm-information;
+    }
+  }
+
+  // show chassis hardware
+  rpc get-chassis-inventory {
+    input {
+      choice information {
+        leaf clei-models {
+          type empty;
+        }
+        leaf detail {
+          type empty;
+        }
+        leaf extensive {
+          type empty;
+        }
+        leaf models {
+          type empty;
+        }
+      }
+    }
+    output {
+      container chassis-inventory {
+        container chassis {
+          description "Hardware inventory of this chassis";
+          leaf hardware-incomplete {
+            type empty;
+          }
+          leaf name {
+            type string;
+            description "Name of this component";
+          }
+          leaf version {
+            type string;
+            description "Version of this component";
+          }
+          leaf part-number {
+            type string;
+            description "Part number of this component";
+          }
+          leaf serial-number {
+            type string;
+            description "Serial number of this component";
+          }
+          leaf model-number {
+            type string;
+            description "Model number of this component";
+          }
+          leaf clei-code {
+            type string;
+            description
+              "Common Language Equipment Identifier code of this component";
+          }
+          leaf description {
+            type string;
+            description "Description of this component";
+          }
+          container i2c-information {
+            leaf jedec-code {
+              type string;
+            }
+            leaf eeprom-version {
+              type string;
+            }
+            leaf part-number {
+              type string;
+              description "Part number of this component";
+            }
+            leaf serial-number {
+              type string;
+              description "Serial number of this component";
+            }
+            leaf model-number {
+              type string;
+              description "Model number of this component";
+            }
+            leaf clei-code {
+              type string;
+              description
+                "Common Language Equipment Identifier code of this component";
+            }
+            leaf assembly-identifier {
+              type string;
+            }
+            leaf assembly-version {
+              type string;
+            }
+            leaf manufacture-date {
+              type string;
+              description "Date this component was manufactured";
+            }
+            leaf assembly-flags {
+              type string;
+            }
+            leaf i2c-version {
+              type string;
+            }
+            leaf i2c-identifier {
+              type string;
+            }
+            leaf i2c-data {
+              type string;
+              description "Hex dump of I2C data";
+            }
+            leaf board-information-record {
+              type string;
+              description "Hex dump of board information record";
+            }
+          }
+          list chassis-module {
+            leaf name {
+              type string;
+              description "Name of this component";
+            }
+            leaf version {
+              type string;
+              description "Version of this component";
+            }
+            leaf part-number {
+              type string;
+              description "Part number of this component";
+            }
+            leaf serial-number {
+              type string;
+              description "Serial number of this component";
+            }
+            leaf model-number {
+              type string;
+              description "Model number of this component";
+            }
+            leaf clei-code {
+              type string;
+              description
+                "Common Language Equipment Identifier code of this component";
+            }
+            leaf description {
+              type string;
+              description "Description of this component";
+            }
+            container i2c-information {
+              leaf jedec-code {
+                type string;
+              }
+              leaf eeprom-version {
+                type string;
+              }
+              leaf part-number {
+                type string;
+                description "Part number of this component";
+              }
+              leaf serial-number {
+                type string;
+                description "Serial number of this component";
+              }
+              leaf model-number {
+                type string;
+                description "Model number of this component";
+              }
+              leaf clei-code {
+                type string;
+                description
+                  "Common Language Equipment Identifier code of this component";
+              }
+              leaf assembly-identifier {
+                type string;
+              }
+              leaf assembly-version {
+                type string;
+              }
+              leaf manufacture-date {
+                type string;
+                description "Date this component was manufactured";
+              }
+              leaf assembly-flags {
+                type string;
+              }
+              leaf i2c-version {
+                type string;
+              }
+              leaf i2c-identifier {
+                type string;
+              }
+              leaf i2c-data {
+                type string;
+                description "Hex dump of I2C data";
+              }
+              leaf board-information-record {
+                type string;
+                description "Hex dump of board information record";
+              }
+            }
+            list firmware {
+              leaf type {
+                type string;
+                description "Type of this component";
+              }
+              leaf firmware-version {
+                type string;
+                description "Firmware version string for this component";
+              }
+            }
+            list chassis-sub-module {
+              leaf name {
+                type string;
+                description "Name of this component";
+              }
+              leaf version {
+                type string;
+                description "Version of this component";
+              }
+              leaf part-number {
+                type string;
+                description "Part number of this component";
+              }
+              leaf serial-number {
+                type string;
+                description "Serial number of this component";
+              }
+              leaf model-number {
+                type string;
+                description "Model number of this component";
+              }
+              leaf clei-code {
+                type string;
+                description
+                  "Common Language Equipment Identifier code of this component";
+              }
+              leaf description {
+                type string;
+                description "Description of this component";
+              }
+              container i2c-information {
+                leaf jedec-code {
+                  type string;
+                }
+                leaf eeprom-version {
+                  type string;
+                }
+                leaf part-number {
+                  type string;
+                  description "Part number of this component";
+                }
+                leaf serial-number {
+                  type string;
+                  description "Serial number of this component";
+                }
+                leaf model-number {
+                  type string;
+                  description "Model number of this component";
+                }
+                leaf clei-code {
+                  type string;
+                  description
+                    "Common Language Equipment Identifier code of this component";
+                }
+                leaf assembly-identifier {
+                  type string;
+                }
+                leaf assembly-version {
+                  type string;
+                }
+                leaf manufacture-date {
+                  type string;
+                  description "Date this component was manufactured";
+                }
+                leaf assembly-flags {
+                  type string;
+                }
+                leaf i2c-version {
+                  type string;
+                }
+                leaf i2c-identifier {
+                  type string;
+                }
+                leaf i2c-data {
+                  type string;
+                  description "Hex dump of I2C data";
+                }
+                leaf board-information-record {
+                  type string;
+                  description "Hex dump of board information record";
+                }
+              }
+              list firmware {
+                leaf type {
+                  type string;
+                  description "Type of this component";
+                }
+                leaf firmware-version {
+                  type string;
+                  description "Firmware version string for this component";
+                }
+              }
+              list chassis-sub-sub-module {
+                leaf name {
+                  type string;
+                  description "Name of this component";
+                }
+                leaf version {
+                  type string;
+                  description "Version of this component";
+                }
+                leaf part-number {
+                  type string;
+                  description "Part number of this component";
+                }
+                leaf serial-number {
+                  type string;
+                  description "Serial number of this component";
+                }
+                leaf model-number {
+                  type string;
+                  description "Model number of this component";
+                }
+                leaf clei-code {
+                  type string;
+                  description
+                    "Common Language Equipment Identifier code of this component";
+                }
+                leaf description {
+                  type string;
+                  description "Description of this component";
+                }
+                list chassis-sub-sub-sub-module {
+                  leaf name {
+                    type string;
+                    description "Name of this component";
+                  }
+                  leaf version {
+                    type string;
+                    description "Version of this component";
+                  }
+                  leaf part-number {
+                    type string;
+                    description "Part number of this component";
+                  }
+                  leaf serial-number {
+                    type string;
+                    description "Serial number of this component";
+                  }
+                  leaf model-number {
+                    type string;
+                    description "Model number of this component";
+                  }
+                  leaf clei-code {
+                    type string;
+                    description
+                      "Common Language Equipment Identifier code of this component";
+                  }
+                  leaf description {
+                    type string;
+                    description "Description of this component";
+                  }
+                }
+              }
+            }
+            list chassis-re-disk-module {
+              leaf name {
+                type string;
+                description "Name of this component";
+              }
+              leaf model {
+                type string;
+              }
+              leaf serial-number {
+                type string;
+                description "Serial number of this component";
+              }
+              leaf disk-size {
+                type int;
+                description "Disk size (megabytes)";
+              }
+              leaf description {
+                type string;
+                description "Description of this component";
+              }
+            }
+            list chassis-re-usb-module {
+              leaf name {
+                type string;
+                description "Name of this component";
+              }
+              leaf product {
+                type string;
+              }
+              leaf product-number {
+                type int;
+              }
+              leaf vendor {
+                type string;
+              }
+              leaf description {
+                type string;
+                description "Description of this component";
+              }
+            }
+            list chassis-re-dimm-module {
+              leaf name {
+                type string;
+                description "Name of this component";
+              }
+              leaf part-number {
+                type string;
+                description "Part number of this component";
+              }
+              leaf die-rev {
+                type string;
+                description " DIE revision of the DIMM";
+              }
+              leaf pcb-rev {
+                type string;
+                description "PCB revision ";
+              }
+              leaf mfr-id {
+                type string;
+                description "Manufacture Id of the DIMM";
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // show chassis environment
+  rpc get-environment-information {
+    // No input
+    output {
+      container environment-information {
+        list environment-item {
+          leaf class {
+            type string;
+          }
+          leaf name {
+            type string;
+            description "Name of this component";
+          }
+          leaf status {
+            description "Status of clock synchronization source";
+            type string;
+/*
+            type enumeration {
+              enum OK;
+              enum Offline;
+              enum Absent;
+              enum Present;
+              enum Check;
+              enum Testing;
+              enum Failed;
+              enum "No Power";
+              enum Unknown;
+            }
+*/
+          }
+          leaf temperature {
+            type string;
+            description "Temperature of the item";
+          }
+          leaf comment {
+            type string;
+          }
+        }
+      }
+    }
+  }
+
+  // show chassis environment routing-engine
+  rpc get-environment-re-information {
+    // No input
+    output {
+      uses environment-component-information;
+    }
+  }
+
+  // show chassis fpc
+  rpc get-fpc-information {
+    input {
+      leaf detail {
+        type empty;
+      }
+      leaf fpc-slot {
+        type uint32;
+      }
+    }
+    output {
+      uses fpc-information;
+    }
+  }
+
+  // show chassis pic
+  rpc get-pic-detail {
+    input {
+      leaf fpc-slot {
+        mandatory true;
+        type uint32;
+      }
+      leaf pic-slot {
+        mandatory true;
+        type uint32;
+      }
+    }
+    output {
+      uses fpc-information;
+    }
+  }
+
+  // show chassis fpc pic-status
+  rpc get-pic-information {
+    input {
+      leaf slot {
+        type uint32;
+      }
+    }
+    output {
+      uses fpc-information;
+    }
+  }
+
+  // show chassis power
+  rpc get-power-usage-information {
+    output {
+      container power-usage-information {
+        leaf capacity-actual {
+          type uint;
+          description "Actual capacity in volt";
+        }
+        leaf capacity-max {
+          type uint;
+          description "Maximum capacity in volt";
+        }
+        leaf capacity-allocated {
+          type uint;
+          description "Allocated capacity in volt";
+        }
+        leaf capacity-remaining {
+          type uint;
+          description "Remaining capacity in volt";
+        }
+        leaf capacity-actual-usage {
+          type uint;
+          description "Actual usage in volt";
+        }
+        leaf capacity-load {
+          type uint;
+          description "Percentage usage";
+        }
+        leaf zone {
+          type uint;
+          description "Power zone";
+        }
+        leaf str-zone {
+          type string;
+          description "Power zone";
+        }
+        list power-usage-item {
+          leaf name {
+            type string;
+            description "Name of this component";
+          }
+          leaf status {
+            description "Status of clock synchronization source";
+            type string;
+/*
+            type enumeration {
+              enum OK;
+              enum Offline;
+              enum Absent;
+              enum Present;
+              enum Check;
+              enum Testing;
+              enum Failed;
+              enum "No Power";
+              enum Unknown;
+            }
+*/
+          }
+          leaf state {
+            description "Status of the component";
+            type string;
+/*
+            type enumeration {
+              enum "Online Master";
+              enum "Online Standby";
+              enum "Online Active";
+              enum "Online Inactive";
+              enum Empty;
+              enum Present;
+              enum "Announce Offline";
+              enum Offline;
+            }
+*/
+          }
+          container ac-input-detail {
+            leaf ac-input {
+              type string;
+              description "AC input state";
+            }
+            leaf ac-expect-feed {
+              type uint;
+              description "Expect power input feed";
+            }
+            leaf ac-actual-feed {
+              type uint;
+              description "Actual power input feed";
+            }
+          }
+          container ac-input-detail2 {
+            leaf ac-input_status {
+              type string;
+              description "AC input status";
+            }
+            leaf ac-feed0-voltage {
+              type string;
+              description "AC feed0 voltage";
+            }
+            leaf ac-feed0-current {
+              type string;
+              description "AC feed0 current";
+            }
+            leaf ac-feed0-power {
+              type string;
+              description "AC feed0 power";
+            }
+            leaf ac-feed1-voltage {
+              type string;
+              description "AC feed1 voltage";
+            }
+            leaf ac-feed1-current {
+              type string;
+              description "AC feed1 current";
+            }
+            leaf ac-feed1-power {
+              type string;
+              description "AC feed1 power";
+            }
+            leaf str-ac-expect-feed {
+              type string;
+              description "Expect power input feed";
+            }
+            leaf str-ac-actual-feed {
+              type string;
+              description "Actual power input feed";
+            }
+          }
+          container dc-input-detail {
+            leaf dc-input {
+              type string;
+              description "DC input state";
+            }
+            leaf reference-voltage {
+              type string;
+              description "Voltage of the item in Volts";
+            }
+            leaf actual-voltage {
+              type int;
+              description "Voltage of the item in mVlots";
+            }
+            leaf dc-expect-feed {
+              type uint;
+              description "Expect power input feed";
+            }
+            leaf dc-actual-feed {
+              type uint;
+              description "Actual power input feed";
+            }
+          }
+          container dc-input-detail2 {
+            leaf dc-input-status {
+              type string;
+              description "DC input status";
+            }
+            leaf dc-feed0-voltage {
+              type string;
+              description "DC feed0 voltage";
+            }
+            leaf dc-feed0-current {
+              type string;
+              description "DC feed0 current";
+            }
+            leaf dc-feed0-power {
+              type string;
+              description "DC feed0 power";
+            }
+            leaf dc-feed1-voltage {
+              type string;
+              description "DC feed1 voltage";
+            }
+            leaf dc-feed1-current {
+              type string;
+              description "DC feed1 current";
+            }
+            leaf dc-feed1-power {
+              type string;
+              description "DC feed1 power";
+            }
+            leaf str-dc-expect-feed {
+              type string;
+              description "Expect power input feed";
+            }
+            leaf str-dc-actual-feed {
+              type string;
+              description "Actual power input feed";
+            }
+          }
+          container dc-output-detail {
+            leaf dc-voltage {
+              type uint;
+            }
+            leaf dc-current {
+              type uint;
+            }
+            leaf dc-power {
+              type uint;
+            }
+            leaf dc-load {
+              type uint;
+            }
+            leaf zone {
+              type uint;
+              description "Power zone";
+            }
+          }
+          container dc-output-detail2 {
+            leaf str-dc-voltage {
+              type string;
+            }
+            leaf str-dc-current {
+              type string;
+            }
+            leaf str-dc-power {
+              type string;
+            }
+            leaf str-dc-load {
+              type string;
+            }
+            leaf str-zone {
+              type string;
+              description "Power zone";
+            }
+          }
+          container dc-output-detail3 {
+            leaf str2-dc-voltage {
+              type string;
+            }
+            leaf str2-dc-current {
+              type string;
+            }
+            leaf str2-dc-power {
+              type string;
+            }
+            leaf str2-dc-load {
+              type string;
+            }
+          }
+          container pem-capacity-detail {
+            leaf capacity-actual {
+              type uint;
+              description "Actual capacity in volt";
+            }
+            leaf capacity-max {
+              type uint;
+              description "Maximum capacity in volt";
+            }
+          }
+        }
+        container power-usage-system {
+          container power-usage-zone-information {
+            leaf zone {
+              type uint;
+              description "Power zone";
+            }
+            leaf str-zone {
+              type string;
+              description "Power zone";
+            }
+            leaf capacity-actual {
+              type uint;
+              description "Actual capacity in volt";
+            }
+            leaf capacity-max {
+              type uint;
+              description "Maximum capacity in volt";
+            }
+            leaf capacity-remaining {
+              type uint;
+              description "Remaining capacity in volt";
+            }
+            leaf capacity-allocated {
+              type uint;
+              description "Allocated capacity in volt";
+            }
+            leaf capacity-actual-usage {
+              type uint;
+              description "Actual usage in volt";
+            }
+          }
+          leaf capacity-res-power {
+            type uint;
+          }
+          leaf capacity-sys-actual {
+            type uint;
+          }
+          leaf capacity-sys-max {
+            type uint;
+          }
+          leaf capacity-sys-remaining {
+            type uint;
+          }
+        }
+        container power-usage-system2 {
+          container power-usage-zone-information2 {
+            leaf capacity-actual {
+              type uint;
+              description "Actual capacity in volt";
+            }
+            leaf capacity-max {
+              type uint;
+              description "Maximum capacity in volt";
+            }
+            leaf capacity-allocated {
+              type uint;
+              description "Allocated capacity in volt";
+            }
+            leaf capacity-remaining {
+              type uint;
+              description "Remaining capacity in volt";
+            }
+            leaf capacity-actual-usage {
+              type uint;
+              description "Actual usage in volt";
+            }
+          }
+        }
+        container power-usage-total {
+          leaf dc-power {
+            type uint;
+          }
+        }
+        container power-usage-voltage-total {
+          leaf dc-power {
+            type uint;
+          }
+        }
+        container power-usage-pdu-item {
+          leaf slot {
+            type int;
+          }
+          leaf dc-power {
+            type uint;
+          }
+          container power-usage-psm-item {
+            leaf slot {
+              type int;
+            }
+            container power-usage-psm-input {
+              leaf name {
+                type string;
+                description "Name of this component";
+              }
+              leaf dc-voltage {
+                type uint;
+              }
+              leaf dc-power {
+                type uint;
+              }
+            }
+          }
+        }
+        container power-usage-fru-item {
+          leaf name {
+            type string;
+            description "Name of this component";
+          }
+          leaf dc-power {
+            type uint;
+          }
+        }
+      }
+    }
+  }
+
+  // show route
+  rpc get-route-information {
+    description "Show routing table information";
+    input {
+      choice choice-logical-system {
+        leaf logical-system {
+          type string {
+            pattern "[a-zA-Z0-9_-]*";
+            length "1..63";
+          }
+          description "Name of logical system, or 'all'";
+        }
+        leaf fabric {
+          description "Internal fabric state";
+          type empty;
+        }
+      }
+      leaf destination {
+        type ipprefix-optional;
+        description "IP address and optional prefix length of destination";
+      }
+      leaf all {
+        description "Show all entries, including hidden entries";
+        type empty;
+      }
+      choice choice-terse {
+        leaf terse {
+          description "Display terse output";
+          type empty;
+        }
+        leaf brief {
+          description "Display brief output";
+          type empty;
+        }
+        leaf detail {
+          description "Display detailed output";
+          type empty;
+        }
+        leaf extensive {
+          description "Display extensive output";
+          type empty;
+        }
+      }
+      choice choice-best {
+        leaf best {
+          description "Show longest matching route";
+          type empty;
+        }
+        leaf exact {
+          description "Show routes that match exactly";
+          type empty;
+        }
+        leaf range {
+          description "Show all entries in prefix range";
+          type empty;
+        }
+      }
+      leaf table {
+        type string;
+        description "Name of routing table";
+      }
+      leaf label {
+        type uint32;
+        description "Label of entry in MPLS routing table";
+      }
+      leaf ccc {
+        type string;
+        description
+          "Name of entry in MPLS table with a circuit cross-connect interface";
+      }
+      leaf inactive-prefix {
+        description "Show inactive route destinations";
+        type empty;
+      }
+      leaf inactive-path {
+        description "Show inactive paths";
+        type empty;
+      }
+      leaf active-path {
+        description "Show active paths";
+        type empty;
+      }
+      leaf private {
+        description "Show private table routes";
+        type empty;
+      }
+      leaf damping {
+        description
+          "Show entries subjected to particular kind of route damping";
+        type enumeration {
+          enum suppressed {
+            description "Entries suppressed due to route damping";
+          }
+          enum history {
+            description "Entries that are withdrawn but have history";
+          }
+          enum decayed {
+            description "Entries that are decayed but not suppressed";
+          }
+        }
+      }
+      leaf output {
+        description "Show entries sent out a particular interface";
+        type enumeration {
+          enum interface {
+            description "Name of interface";
+          }
+          enum address {
+            description "Address of interface";
+          }
+        }
+      }
+      leaf next-hop {
+        type ipaddr;
+        description "IP address of next hop that is destination for entries";
+      }
+      leaf source-gateway {
+        type ipaddr;
+        description "IP address of source router for entries";
+      }
+      leaf protocol {
+        description "Name of protocol that is source for entries";
+        type enumeration {
+          enum aggregate {
+            description "Locally generated aggregate route";
+          }
+          enum bgp {
+            description "Border Gateway Protocol";
+          }
+          enum direct {
+            description "Directly connected routes";
+          }
+          enum dvmrp {
+            description "Distance Vector Multicast Routing Protocol";
+          }
+          enum isis {
+            description "Intermediate System-to-Intermediate System";
+          }
+          enum esis {
+            description "End System-to-Intermediate System";
+          }
+          enum ldp {
+            description "Label Distribution Protocol";
+          }
+          enum local {
+            description "Local system addresses";
+          }
+          enum ospf {
+            description "Open Shortest Path First";
+          }
+          enum ospf2 {
+            description "Open Shortest Path First Version 2";
+          }
+          enum ospf3 {
+            description "Open Shortest Path First Version 3";
+          }
+          enum pim {
+            description "Protocol Independent Multicast";
+          }
+          enum mvpn {
+            description "BGP-MVPN Protocol";
+          }
+          enum rip {
+            description "Routing Information Protocol";
+          }
+          enum ripng {
+            description "Routing Information Protocol for IPv6";
+          }
+          enum rsvp {
+            description "Resource Reservation Protocol";
+          }
+          enum static {
+            description "Statically defined prefixes";
+          }
+          enum arp {
+            description "Prefixes learned via ARP";
+          }
+          enum frr {
+            description "Prefixes created by Host (Direct route) Fast reroute";
+          }
+          enum mpls {
+            description "Multiprotocol Label Switching";
+          }
+          enum ccc {
+            description "Circuit cross-connect";
+          }
+          enum msdp {
+            description "Multicast Source Discovery Protocol";
+          }
+          enum vpn {
+            description "Layer 3 virtual private network";
+          }
+          enum l2vpn {
+            description "Layer 2 virtual private network";
+          }
+          enum l2circuit {
+            description "Layer 2 circuit";
+          }
+          enum rtarget {
+            description "Local route target VPN membership";
+          }
+          enum tunnel {
+            description "Dynamic tunnel";
+          }
+          enum flow {
+            description "Locally defined flow route";
+          }
+          enum access {
+            description "Access route";
+          }
+          enum access-internal {
+            description "Access-internal route";
+          }
+        }
+      }
+      // For advertising-protocol use choice below and neighbor leaf
+      // For receive-protocol use choice below and peer leaf
+      choice choice-bgp {
+        leaf bgp {
+          description "Border Gateway Protocol";
+          type empty;
+        }
+        leaf dvmrp {
+          description "Distance Vector Multicast Routing Protocol";
+          type empty;
+        }
+        leaf pim {
+          description "Protocol Independent Multicast";
+          type empty;
+        }
+        leaf rip {
+          description "Routing Information Protocol";
+          type empty;
+        }
+        leaf ripng {
+          description "Routing Information Protocol for IPv6";
+          type empty;
+        }
+        leaf msdp {
+          description "Multicast Source Discovery Protocol";
+          type empty;
+        }
+      }
+      choice choice-protocol {
+        case advertising-protocol {
+          leaf neighbor {
+            type ipaddr;
+            description "IP address of neighbor (local for RIP and RIPng)";
+          }
+        }
+        case receive-protocol {
+          leaf peer {
+            type ipaddr;
+            description "IP address of neighbor";
+          }
+        }
+      }
+      leaf rd-prefix {
+        type string;
+        description "Route distinguisher with ip prefix (rd:prefix)";
+      }
+      leaf match-prefix {
+        type string;
+        description "Regular expression to match formatted prefix";
+      }
+      leaf aspath-regex {
+        type string;
+        description "BGP AS path regular expression for entries to match";
+      }
+      leaf-list community {
+        type string;
+        ordered-by user;
+        description "Identifier for community (can include wildcards)";
+      }
+      leaf no-community {
+        description "Show entries with no associated community";
+        type empty;
+      }
+      leaf community-name {
+        type string;
+        description "Name of configured community policy to match";
+      }
+      leaf label-switched-path {
+        description "Name of LSP tunnel associated with entries";
+        type string {
+          length "1 .. 64";
+        }
+      }
+      leaf static-label-switched-path {
+        description "Name of static LSP tunnel associated with entries";
+        type string {
+          length "1 .. 64";
+        }
+      }
+      leaf hidden {
+        description "Show hidden entries";
+        type empty;
+      }
+      leaf validation-state {
+        description "Show entries with a given validation state";
+        type enumeration {
+          enum unverified {
+            description "Unverified route validation state";
+          }
+          enum unknown {
+            description "Unknown route validation state";
+          }
+          enum valid {
+            description "Valid route validation state";
+          }
+          enum invalid {
+            description "Invalid route validation state";
+          }
+        }
+      }
+      leaf ne-id {
+        type ipaddr;
+        description "INE Identifier ipaddress";
+      }
+      leaf fabric-route-type {
+        description "Fabric route type";
+        type enumeration {
+          enum ne-port {
+            description "NE-PORT id";
+          }
+          enum mstp-root {
+            description "MSTP-ROOT id";
+          }
+          enum indirect-nexthop {
+            description "Indirect nexthop index";
+          }
+          enum l2l3-map {
+            description "Layer 2 domain ID";
+          }
+          enum mcast-layer2-domain-port {
+            description "Multicast layer2 domain port routes";
+          }
+          enum mcast-group {
+            description "Multicast group ID";
+          }
+          enum mcast-member-map-key {
+            description "Multicast membership map key";
+          }
+          enum mcast-routes {
+            description "All multicast routes";
+          }
+        }
+      }
+      leaf l2domain-id {
+        type uint32;
+        description "L2Domain Id";
+      }
+      leaf bridge-route-mac-address {
+        type mac-addr;
+        description "MAC address";
+      }
+      leaf bridge-route-group-id {
+        type ipaddr;
+        description "Multicast Group ID";
+      }
+    }
+    output {
+      container route-information {
+        leaf as-number {
+          type int;
+        }
+        leaf router-id {
+          type ipaddr;
+        }
+        leaf maximum-ecmp {
+          type int;
+        }
+        leaf note-network-services-mode {
+          type string;
+        }
+        list route-table {
+          list protocols {
+            leaf protocol-name {
+              type string;
+/*
+              type enumeration {
+                enum Any;
+                enum Direct;
+                enum Local;
+                enum Kernel;
+                enum Redirect;
+                enum OSPF;
+                enum OSPF3;
+                enum OSPF_ANY;
+                enum RIP;
+                enum RIPng;
+                enum BGP;
+                enum Static;
+                enum MIB;
+                enum IS-IS;
+                enum INET;
+                enum INET6;
+                enum IGMP;
+                enum Aggregate;
+                enum DVMRP;
+                enum RDISC;
+                enum Mgmt;
+                enum SAP;
+                enum PIM;
+                enum MSDP;
+                enum MPLS;
+                enum RSVP;
+                enum CCC;
+                enum LDP;
+                enum LDF;
+                enum LSI;
+                enum Phantom;
+                enum SYSTEM;
+                enum VPN;
+                enum MVPN;
+                enum Multicast;
+                enum L2VPN;
+                enum L2CKT;
+                enum GMPLS;
+                enum MLD;
+                enum VPLS;
+                enum Multipath;
+                enum ATMVPN;
+                enum RTarget;
+                enum "Sham link";
+                enum Tunnel;
+                enum LinkMgmt;
+                enum Flow;
+                enum ES-IS;
+                enum Access;
+                enum Access-internal;
+                enum Condition-manager;
+                enum L2IW;
+                enum ARP;
+                enum Bridge;
+                enum Fabric;
+                enum DC-Mcast;
+                enum AMT;
+                enum RV;
+                enum Egress-Protection;
+                enum FRR;
+              }
+*/
+            }
+            leaf protocol-route-count {
+              type int;
+              description "Total protocol routes";
+            }
+            leaf active-route-count {
+              type int;
+              description "Active routes";
+            }
+          }
+          leaf table-name {
+            type string;
+            description "Unicast routing table";
+          }
+          leaf destination-count {
+            type int;
+            description "Number of destinations in this rib";
+          }
+          leaf total-route-count {
+            type int;
+          }
+          leaf active-route-count {
+            type int;
+            description "Active routes";
+          }
+          leaf holddown-route-count {
+            type int;
+          }
+          leaf hidden-route-count {
+            type int;
+          }
+          leaf restart-state {
+            type string;
+          }
+          leaf prefix-max {
+            type int;
+          }
+          leaf prefix-threshold {
+            type int;
+          }
+          leaf route-max {
+            type int;
+          }
+          leaf route-threshold {
+            type int;
+          }
+          leaf route-limit-label {
+            type string;
+          }
+          leaf prefix-label {
+            type string;
+          }
+          list rt {
+            leaf rt-destination {
+              type string;
+            }
+            leaf rt-prefix-length {
+              type int;
+            }
+            leaf rt-entry-count {
+              type int;
+              description "Number of route entries in this route";
+            }
+            leaf rt-announced-count {
+              type int;
+              description "Number of announced route entries";
+            }
+            leaf rt-state {
+              type string;
+              description "State of this route";
+            }
+            list rt-entry {
+              leaf active-tag {
+                description
+                  "Visual indication of active state of this route entry";
+                type string;
+/*
+                type enumeration {
+                  enum "*";
+                  enum "+";
+                  enum "-";
+                  enum " ";
+                  enum "#";
+                  enum "@";
+                }
+*/
+              }
+              leaf last-active {
+                description "This route entry was the last active route entry";
+                type empty;
+              }
+              leaf current-active {
+                description "This route entry is currently active";
+                type empty;
+              }
+              leaf protocol-name {
+                type string;
+/*
+                type enumeration {
+                  enum Any;
+                  enum Direct;
+                  enum Local;
+                  enum Kernel;
+                  enum Redirect;
+                  enum OSPF;
+                  enum OSPF3;
+                  enum OSPF_ANY;
+                  enum RIP;
+                  enum RIPng;
+                  enum BGP;
+                  enum Static;
+                  enum MIB;
+                  enum IS-IS;
+                  enum INET;
+                  enum INET6;
+                  enum IGMP;
+                  enum Aggregate;
+                  enum DVMRP;
+                  enum RDISC;
+                  enum Mgmt;
+                  enum SAP;
+                  enum PIM;
+                  enum MSDP;
+                  enum MPLS;
+                  enum RSVP;
+                  enum CCC;
+                  enum LDP;
+                  enum LDF;
+                  enum LSI;
+                  enum Phantom;
+                  enum SYSTEM;
+                  enum VPN;
+                  enum MVPN;
+                  enum Multicast;
+                  enum L2VPN;
+                  enum L2CKT;
+                  enum GMPLS;
+                  enum MLD;
+                  enum VPLS;
+                  enum Multipath;
+                  enum ATMVPN;
+                  enum RTarget;
+                  enum "Sham link";
+                  enum Tunnel;
+                  enum LinkMgmt;
+                  enum Flow;
+                  enum ES-IS;
+                  enum Access;
+                  enum Access-internal;
+                  enum Condition-manager;
+                  enum L2IW;
+                  enum ARP;
+                  enum Bridge;
+                  enum Fabric;
+                  enum DC-Mcast;
+                  enum AMT;
+                  enum RV;
+                  enum Egress-Protection;
+                  enum FRR;
+                }
+*/
+              }
+              leaf preference {
+                type int;
+                description "Preference for the route";
+              }
+              leaf preference2 {
+                type int;
+              }
+              leaf route-distinguisher {
+                type string;
+              }
+              leaf pmsi {
+                type string;
+                description "P-multicast service interface";
+              }
+              leaf color {
+                type int;
+              }
+              leaf rt-isis-level {
+                type int;
+              }
+              leaf color2 {
+                type int;
+              }
+              leaf rt-isis-downbit {
+                type int;
+              }
+              leaf age {
+                type string;
+              }
+              leaf metric {
+                type int;
+                description "IGP metric";
+              }
+              leaf metric2 {
+                type int;
+              }
+              leaf validation-state {
+                type string;
+/*
+                type enumeration {
+                  enum valid;
+                  enum invalid;
+                  enum unknown;
+                  enum unverified;
+                }
+*/
+              }
+              leaf med-plus-igp {
+                type int;
+              }
+              leaf rt-aigp {
+                type uint64;
+              }
+              leaf rt-resolving-aigp {
+                type uint64;
+              }
+              leaf rt-tag {
+                type int;
+              }
+              leaf rt-tag2 {
+                type int;
+              }
+              leaf rt-ospf-area {
+                type string;
+              }
+              leaf learned-from {
+                type ipaddr;
+                description "Peer address from which this route was learned";
+              }
+              leaf peer-as {
+                type int;
+                description "Peer AS number";
+              }
+              leaf local-as {
+                type int;
+                description "Local AS number";
+              }
+              list route-data-dcf {
+                leaf trunk-id {
+                  type int;
+                  description "Trunk Identifier associated with the LAG port";
+                }
+                leaf snmp-idx {
+                  type int;
+                  description "IFD SNMP index";
+                }
+                leaf ts {
+                  type int;
+                  description "Timestamp associated with the route";
+                }
+                leaf class-id {
+                  type int;
+                  description "Class identifier associated with the route";
+                }
+                leaf rt-flags {
+                  type string;
+                  description "Flags associated with the route";
+                }
+                leaf rt-type {
+                  type string;
+                  description "Route type associated with the route";
+                }
+                leaf rt-proto {
+                  type string;
+                  description "Protocol associated with the route";
+                }
+                leaf rt-l2domain {
+                  type int;
+                  description "L2domain associated with the route";
+                }
+                leaf rt-mac-addr {
+                  type mac-addr;
+                  description "Mac address associated with the route";
+                }
+                leaf snpa-count {
+                  type int;
+                  description "Number of SNPAs in this route";
+                }
+                leaf snpa-length {
+                  type int;
+                  description "Total length of the SNPAs, in bytes";
+                }
+                leaf-list snpa {
+                  type string;
+                  ordered-by user;
+                }
+                container multicast-member-map-data {
+                  description "Multicast member map";
+                  leaf multicast-member-map {
+                    type string;
+                  }
+                  leaf multicast-root-hash {
+                    type int;
+                  }
+                  leaf multicast-core-hash {
+                    type int;
+                  }
+                  leaf multicast-edge-hash {
+                    type int;
+                  }
+                }
+              }
+              leaf rt-entry-state {
+                type string;
+                description "State of this route entry";
+              }
+              leaf inactive-reason {
+                type string;
+                description "HFRR profile Inactive reason (if any)";
+              }
+              leaf task-name {
+                type string;
+                description "Name of this task";
+              }
+              leaf announce-bits {
+                type int;
+              }
+              leaf announce-tasks {
+                type string;
+              }
+              leaf bgp-rt-flag {
+                type string;
+                description "BGP route flag";
+              }
+              leaf bgp-rtarget-type {
+                type string;
+                description "BGP RT-Constrain route type";
+              }
+              leaf bgp-rtarget-generation {
+                type uint;
+                description "BGP RT-Constrain generation";
+              }
+              leaf bgp-rtarget-for {
+                type string;
+                description "BGP RT-Constrain member";
+              }
+              leaf label-base {
+                type int;
+                description "Label base for l2vpn";
+              }
+              leaf label-range {
+                type int;
+                description "Label range for l2vpn";
+              }
+              leaf l2vpn-status-vector {
+                type string;
+              }
+              leaf l2vpn-mesh-group {
+                type string;
+              }
+              leaf vc-label {
+                type int;
+                description "VC label";
+              }
+              leaf mtu {
+                type int;
+                description "MTU along an interface";
+              }
+              leaf cell-bundle-size {
+                type int;
+                description "Cell bundle size";
+              }
+              leaf vlan-id {
+                type int;
+              }
+              leaf tdm-payload-size {
+                type int;
+              }
+              leaf tdm-bitrate {
+                type int;
+              }
+              leaf pw-status-code {
+                type int;
+              }
+              container connection-bandwidth {
+                description "Bandwidth of a layer 2 connection";
+                leaf bandwidth {
+                  type int;
+                }
+                leaf class-type {
+                  type int;
+                }
+                leaf class-bandwidth {
+                  type int;
+                }
+              }
+              leaf cac-bandwidth-failure {
+                description "Call admission control failure due to insufficient bandwidth";
+                type empty;
+              }
+              leaf context-id {
+                type ipaddr;
+                description "Context Identifier";
+              }
+              leaf route-control-word {
+                type string;
+                description "Control Word";
+              }
+              leaf vpn-label {
+                type int;
+                description "VPN label";
+              }
+              leaf route-label {
+                type int;
+                description "Route label";
+              }
+              leaf bgp-no-label-reason {
+                type string;
+/*
+                type enumeration {
+                  enum "Unspecified error";
+                  enum "Need a nexthop type";
+                  enum "Need a gateway";
+                  enum "Need an interface";
+                  enum "Only IPv4 and IPv6 supported";
+                  enum "Need a nexthop address on LAN";
+                  enum "family mpls not enabled on interface";
+                  enum "protocols mpls not enabled on interface";
+                }
+*/
+              }
+              container rtd-flow-dep {
+                leaf flow-origin {
+                  type ipaddr;
+                  description "Originator of the flow information";
+                }
+                leaf flow-dep-state {
+                  type string;
+/*
+                  type enumeration {
+                    enum Accept;
+                    enum Reject;
+                    enum "Not resolved";
+                    enum Orphan;
+                  }
+*/
+                }
+                container flow-ucast-rt {
+                  description "Unicast route used for resolution";
+                  leaf flow-rtn-dest {
+                    type ipaddr;
+                    description "Destination address";
+                  }
+                  leaf flow-rtn-plen {
+                    type int;
+                    description "Prefix length";
+                  }
+                  leaf flow-rtn-state {
+                    description "Validation entry state";
+                    type string;
+/*
+                    type enumeration {
+                      enum Active;
+                      enum Pending;
+                      enum Deleted;
+                    }
+*/
+                  }
+                }
+              }
+              leaf as-path {
+                type string;
+              }
+              container communities {
+                leaf-list community {
+                  type string;
+                  ordered-by user;
+                  description "Basic community";
+                }
+                leaf-list extended-community {
+                  type string;
+                  ordered-by user;
+                  description "Extended community";
+                }
+              }
+              leaf helper-nhid {
+                type uint;
+                description "Helper nexthop index";
+              }
+              leaf helper-refcount {
+                type int;
+                description "Reference count of those needing helper route";
+              }
+              leaf bgp-metric-flags {
+                type string;
+                description "BGP metrics flags";
+              }
+              leaf bgp-aigp {
+                type string;
+                description "Accumulated IGP Metric";
+              }
+              leaf local-preference {
+                type int;
+              }
+              leaf med {
+                type int;
+                description "Multiple exit discriminator";
+              }
+              leaf peer-id {
+                type ipaddr;
+              }
+              leaf cluster-id {
+                type string;
+              }
+              leaf path-id {
+                type string;
+              }
+              leaf originator {
+                type string;
+              }
+              container attrset {
+                leaf attrset-as {
+                  type int;
+                  description "Originator AS";
+                }
+                leaf med {
+                  type int;
+                  description "Multiple exit discriminator";
+                }
+                leaf local-preference {
+                  type int;
+                }
+                leaf as-path {
+                  type string;
+                }
+                container communities {
+                  leaf-list community {
+                    type string;
+                    ordered-by user;
+                    description "Basic community";
+                  }
+                  leaf-list extended-community {
+                    type string;
+                    ordered-by user;
+                    description "Extended community";
+                  }
+                }
+                leaf cluster-id {
+                  type string;
+                }
+                leaf pmsi {
+                  type string;
+                  description "P-multicast service interface";
+                }
+                leaf originator {
+                  type string;
+                }
+              }
+              leaf bgp-group-name {
+                type string;
+              }
+              leaf deleted {
+                type empty;
+              }
+              container route-flap-damping {
+                presence "enable route-flap-damping";
+                leaf merit {
+                  type int;
+                  description "Current merit value";
+                }
+                leaf last-merit {
+                  type int;
+                  description "Last merit value";
+                }
+                leaf damping-parameters {
+                  type string;
+                }
+                leaf default-damping-parameters {
+                  description "Default damping parameters used";
+                  type empty;
+                }
+                leaf last-update {
+                  type string;
+                }
+                leaf first-update {
+                  type string;
+                }
+                leaf route-flap-count {
+                  type int;
+                  description "Number of times this route has flapped";
+                }
+                leaf suppressed {
+                  description "This route is suppressed";
+                  type empty;
+                }
+                leaf reuse-time {
+                  type string;
+                  description "Time until this route is reusable";
+                }
+                leaf reuse-preference {
+                  type int;
+                  description "Preference to use when this route is reused";
+                }
+                leaf expire-time {
+                  type string;
+                  description "Time when this damping entry expires";
+                }
+              }
+              container aggregate {
+                leaf aggregate-flags {
+                  description "Flags on this aggregate route entry";
+                  type string;
+/*
+                  type enumeration {
+                    enum Brief;
+                    enum Changed;
+                    enum ASPathChanged;
+                    enum OnList;
+                    enum Generate;
+                    enum Discard;
+                    enum Resolve;
+                  }
+*/
+                }
+                leaf aggregate-depth {
+                  type int;
+                  description "Depth of this aggregate";
+                }
+                leaf aggregate-active {
+                  description "Present if this aggregate is active";
+                  type empty;
+                }
+                container aggregate-as-path {
+                  leaf as-path {
+                    type string;
+                  }
+                  leaf reference-count {
+                    type int;
+                  }
+                }
+                leaf contributing-route-count {
+                  type int;
+                  description "Number of contributing routes in this aggregate";
+                }
+                list aggregated-route {
+                  leaf destination-prefix {
+                    type string;
+                    description "Destination prefix and mask";
+                  }
+                  leaf protocol-name {
+                    type string;
+/*
+                    type enumeration {
+                      enum Any;
+                      enum Direct;
+                      enum Local;
+                      enum Kernel;
+                      enum Redirect;
+                      enum OSPF;
+                      enum OSPF3;
+                      enum OSPF_ANY;
+                      enum RIP;
+                      enum RIPng;
+                      enum BGP;
+                      enum Static;
+                      enum MIB;
+                      enum IS-IS;
+                      enum INET;
+                      enum INET6;
+                      enum IGMP;
+                      enum Aggregate;
+                      enum DVMRP;
+                      enum RDISC;
+                      enum Mgmt;
+                      enum SAP;
+                      enum PIM;
+                      enum MSDP;
+                      enum MPLS;
+                      enum RSVP;
+                      enum CCC;
+                      enum LDP;
+                      enum LDF;
+                      enum LSI;
+                      enum Phantom;
+                      enum SYSTEM;
+                      enum VPN;
+                      enum MVPN;
+                      enum Multicast;
+                      enum L2VPN;
+                      enum L2CKT;
+                      enum GMPLS;
+                      enum MLD;
+                      enum VPLS;
+                      enum Multipath;
+                      enum ATMVPN;
+                      enum RTarget;
+                      enum "Sham link";
+                      enum Tunnel;
+                      enum LinkMgmt;
+                      enum Flow;
+                      enum ES-IS;
+                      enum Access;
+                      enum Access-internal;
+                      enum Condition-manager;
+                      enum L2IW;
+                      enum ARP;
+                      enum Bridge;
+                      enum Fabric;
+                      enum DC-Mcast;
+                      enum AMT;
+                      enum RV;
+                      enum Egress-Protection;
+                      enum FRR;
+                    }
+*/
+                  }
+                }
+              }
+              leaf gateway {
+                type string;
+                description "Sourcing gateway";
+              }
+              leaf indirect-nh-count {
+                type int;
+                description "Number of indirect next hops";
+              }
+              leaf composite-nh-count {
+                type int;
+                description "Number of composite next hops";
+              }
+              leaf nh-type {
+                type string;
+                description "Special next hop: Reject, Blackhole, Receive, Multicast, Local, or Unused";
+              }
+              leaf nh-index {
+                type uint;
+                description "Next-hop index";
+              }
+              leaf nh-address {
+                type union {
+                  type int;
+                  type string;
+                }
+                description "Address of next hop";
+              }
+              leaf nh-reference-count {
+                type int;
+                description "Number of references to this next hop";
+              }
+              leaf nh-kernel-id {
+                type int;
+                description "Table Id for this next hop";
+              }
+              leaf ext-int-intf-index {
+                type int;
+                description "Interface index of equal-external-internal multipath";
+              }
+              leaf nh-flood-overflow {
+                description "Flood nexthop exceeds maximum branches";
+                type empty;
+              }
+              container nhh {
+                leaf nh-type {
+                  type string;
+                  description "Special next hop: Reject, Blackhole, Receive, Multicast, Local, or Unused";
+                }
+                leaf nh-index {
+                  type uint;
+                  description "Next-hop index";
+                }
+                leaf nh-address {
+                  type int;
+                  description "Address of next hop";
+                }
+                leaf nh-reference-count {
+                  type int;
+                  description "Number of references to this next hop";
+                }
+                leaf ext-int-intf-index {
+                  type int;
+                  description
+                    "Interface index of equal-external-internal multipath";
+                }
+                leaf nh-flood-overflow {
+                  description "Flood nexthop exceeds maximum branches";
+                  type empty;
+                }
+              }
+              list nh {
+                description "Next-hop gateway information";
+                leaf selected-next-hop {
+                  description "Present if this next hop is selected";
+                  type empty;
+                }
+                leaf nh-string {
+                  type string;
+                }
+                leaf elnh-address {
+                  type int;
+                  description "Address of Element Next-hop";
+                }
+                leaf ext-int-type {
+                  type string;
+                  description
+                    "Next-hop type of equal-external-internal multipath";
+                }
+                leaf localized-table {
+                  type string;
+                  description "Name of localized table";
+                }
+                leaf weight {
+                  type int;
+                  description "Next-hop weight";
+                }
+                leaf balance {
+                  type int;
+                  description "Next-hop balance";
+                }
+                leaf uflags {
+                  type int;
+                  description "Next-hop uflags";
+                }
+                leaf fc {
+                  type int;
+                  description Forwarding-class;
+                }
+                leaf session {
+                  type int;
+                  description "Session ID Associated with this NH";
+                }
+                leaf filter {
+                  type string;
+                  description "Next-hop firewall filter";
+                }
+                leaf via {
+                  type string;
+                  description "Reachable via a local interface";
+                }
+                leaf nh-local-interface {
+                  type string;
+                  description "Destination is a local interface";
+                }
+                leaf nh-table-receive {
+                  type string;
+                  description "Destination is a local address";
+                }
+                leaf nh-table {
+                  type string;
+                  description "Indirect pointing to another table";
+                }
+                leaf nh-table-localized {
+                  type string;
+                  description "Indirect pointing to a localized table";
+                }
+                leaf nh-localized-ifl {
+                  type string;
+                  description "Indirect pointing to a localized ifl";
+                }
+                leaf nh-indirect-fnh-type {
+                  type string;
+                  description "Indirect pointing to a well-known nexthop";
+                }
+                leaf to {
+                  type string;
+                  description
+                    "Neighbor address to which to send (next-hop address)";
+                }
+                leaf lsp-name {
+                  type string;
+                  description "Tunneled into an RSVP LSP";
+                }
+                leaf mpls-label {
+                  type string;
+                  description "Label of MPLS packet";
+                }
+                leaf label-ttl-action {
+                  type string;
+                  description "TTL action associated with labels";
+                }
+                leaf nh-service {
+                  type string;
+                  description "Next-hop service";
+                }
+                leaf nh-service-pkt-dist {
+                  type string;
+                  description "Multi services packet distribution type";
+                }
+                leaf nh-service-app-data {
+                  type string;
+                  description "Multi services application specific data";
+                }
+                leaf nh-private-comp {
+                  type string;
+                  description "Private Composite Next-hop";
+                }
+                leaf nh-address {
+                  type int;
+                  description "Address of next hop";
+                }
+                leaf nh-index {
+                  type uint;
+                  description "Next-hop index";
+                }
+              }
+              container protocol-nh {
+                description "Protocol next hop";
+                leaf to {
+                  type string;
+                  description
+                    "Neighbor address to which to send (next-hop address)";
+                }
+                leaf metric {
+                  type int;
+                  description "IGP metric";
+                }
+                leaf aigp {
+                  type string;
+                  description AIGP;
+                }
+                leaf indirect-nh {
+                  type string;
+                }
+                leaf composite-nh {
+                  type string;
+                }
+                leaf vpnlabel-nh {
+                  type string;
+                }
+                leaf mpls-label {
+                  type string;
+                  description "Label of MPLS packet";
+                }
+                leaf balance {
+                  type int;
+                  description "Next-hop balance";
+                }
+                leaf flags {
+                  type string;
+                  description "Enabled trace flags";
+                }
+                leaf forwarding-nh-count {
+                  type int;
+                  description "Number of indirect path forwarding next hops";
+                }
+                leaf nh-type {
+                  type string;
+                  description "Special next hop: Reject, Blackhole, Receive, Multicast, Local, or Unused";
+                }
+                leaf ext-int-type {
+                  type string;
+                  description
+                    "Next-hop type of equal-external-internal multipath";
+                }
+                list nh {
+                  description "Next-hop gateway information";
+                  leaf selected-next-hop {
+                    description "Present if this next hop is selected";
+                    type empty;
+                  }
+                  leaf nh-string {
+                    type string;
+                  }
+                  leaf elnh-address {
+                    type int;
+                    description "Address of Element Next-hop";
+                  }
+                  leaf ext-int-type {
+                    type string;
+                    description
+                      "Next-hop type of equal-external-internal multipath";
+                  }
+                  leaf localized-table {
+                    type string;
+                    description "Name of localized table";
+                  }
+                  leaf weight {
+                    type int;
+                    description "Next-hop weight";
+                  }
+                  leaf balance {
+                    type int;
+                    description "Next-hop balance";
+                  }
+                  leaf uflags {
+                    type int;
+                    description "Next-hop uflags";
+                  }
+                  leaf fc {
+                    type int;
+                    description Forwarding-class;
+                  }
+                  leaf session {
+                    type int;
+                    description "Session ID Associated with this NH";
+                  }
+                  leaf filter {
+                    type string;
+                    description "Next-hop firewall filter";
+                  }
+                  leaf via {
+                    type string;
+                    description "Reachable via a local interface";
+                  }
+                  leaf nh-local-interface {
+                    type string;
+                    description "Destination is a local interface";
+                  }
+                  leaf nh-table-receive {
+                    type string;
+                    description "Destination is a local address";
+                  }
+                  leaf nh-table {
+                    type string;
+                    description "Indirect pointing to another table";
+                  }
+                  leaf nh-table-localized {
+                    type string;
+                    description "Indirect pointing to a localized table";
+                  }
+                  leaf nh-localized-ifl {
+                    type string;
+                    description "Indirect pointing to a localized ifl";
+                  }
+                  leaf nh-indirect-fnh-type {
+                    type string;
+                    description "Indirect pointing to a well-known nexthop";
+                  }
+                  leaf to {
+                    type string;
+                    description
+                      "Neighbor address to which to send (next-hop address)";
+                  }
+                  leaf lsp-name {
+                    type string;
+                    description "Tunneled into an RSVP LSP";
+                  }
+                  leaf mpls-label {
+                    type string;
+                    description "Label of MPLS packet";
+                  }
+                  leaf label-ttl-action {
+                    type string;
+                    description "TTL action associated with labels";
+                  }
+                  leaf nh-service {
+                    type string;
+                    description "Next-hop service";
+                  }
+                  leaf nh-service-pkt-dist {
+                    type string;
+                    description "Multi services packet distribution type";
+                  }
+                  leaf nh-service-app-data {
+                    type string;
+                    description "Multi services application specific data";
+                  }
+                  leaf nh-private-comp {
+                    type string;
+                    description "Private Composite Next-hop";
+                  }
+                  leaf nh-address {
+                    type int;
+                    description "Address of next hop";
+                  }
+                  leaf nh-index {
+                    type uint;
+                    description "Next-hop index";
+                  }
+                }
+              }
+              leaf rtrib-primary {
+                type string;
+                description "Primary routing table";
+              }
+              leaf rtrib-secondary {
+                type string;
+                description "Secondary routing table";
+              }
+              leaf backup-pe-group-name {
+                type string;
+                description "Name of the backup PE group";
+              }
+              leaf designated-forwarder {
+                type string;
+                description
+                  "Indicates if we are the designated forwarder for this route";
+              }
+            }
+            leaf tsi {
+              type string;
+              description "Task-specific information";
+            }
+            container communities {
+              leaf-list community {
+                type string;
+                ordered-by user;
+                description "Basic community";
+              }
+              leaf-list extended-community {
+                type string;
+                ordered-by user;
+                description "Extended community";
+              }
+            }
+          }
+        }
+        container rt-martians {
+          leaf rt-martian-table-name {
+            type string;
+            description "Name of the martian table, for example, inet.0";
+          }
+          list route-filter {
+            description "Entries in martian table";
+            leaf address {
+              type ipaddr;
+            }
+            leaf flags {
+              type string;
+              description "Enabled trace flags";
+            }
+            leaf match-count {
+              type uint64;
+            }
+            leaf extended-information {
+              type string;
+            }
+          }
+        }
+        container rt-ribgroup {
+          leaf rt-ribgroup-name {
+            type string;
+            description "Rib-group name";
+          }
+          leaf rt-ribgroup-address {
+            type string;
+            description "Rib-group address";
+          }
+          leaf rt-ribgroup-flags {
+            type string;
+            description "Rib-group flags";
+          }
+          leaf rt-ribgroup-address-family {
+            type string;
+            description "Rib-group address family";
+          }
+          leaf rt-ribgroup-refcount {
+            type uint;
+            description "Rib-group refcount";
+          }
+          leaf rt-ribgroup-export-name {
+            type string;
+            description "Export RIB name";
+          }
+          leaf rt-ribgroup-import-name {
+            type string;
+            description "Import RIB name";
+          }
+          leaf rt-ribgroup-import-policy-name {
+            type string;
+            description "Import policy name";
+          }
+          leaf rt-ribgroup-import-secondary-name {
+            type string;
+            description "Import secondary RIB name";
+          }
+          leaf rt-ribgroup-union-head-name {
+            type string;
+            description "Rib-group union head name";
+          }
+          leaf rt-ribgroup-union-child-name {
+            type string;
+            description "Rib-group union child name";
+          }
+        }
+        container rt-test-policy-prefix {
+          leaf rt-policy-name {
+            type string;
+          }
+          leaf rt-destination {
+            type string;
+          }
+          leaf rt-prefix-length {
+            type int;
+          }
+          container rt-test-policy-term {
+            leaf rt-policy-term-name {
+              type string;
+            }
+            leaf rt-policy-term-result {
+              type string;
+            }
+            leaf rt-policy-term-action {
+              type string;
+            }
+          }
+        }
+        container rt-test-policy {
+          leaf rt-policy-name {
+            type string;
+          }
+          leaf rt-route-accepted {
+            type int;
+          }
+          leaf rt-route-rejected {
+            type int;
+          }
+        }
+      }
+    }
+  }
+
+  // show task replication
+  rpc get-routing-task-replication-state {
+    description "Stateful replication";
+    // no input
+    output {
+      container task-replication-state {
+        description "Current state of task replication";
+        leaf task-gres-state {
+          description "Current state of graceful Routing Engine Switchover";
+          type string;
+/*
+          type enumeration {
+            enum Enabled;
+            enum Disabled;
+          }
+*/
+        }
+        leaf task-re-mode {
+          description "Current mastership state of Routing Engine";
+          type string;
+/*
+          type enumeration {
+            enum Master;
+            enum Standby;
+          }
+*/
+        }
+      }
+    }
+  }
+
+  // show system snapshot
+  rpc get-snapshot-information {
+    description "Show snapshot information";
+    input {
+      leaf slice {
+        description "Show snapshot information from specified partition";
+        type slice;
+      }
+      leaf media {
+        description "Media to show snapshot information from";
+        type enumeration {
+          enum removable-compact-flash {
+            description
+              "Show snapshot information from removable compact flash";
+          }
+          enum compact-flash {
+            description "Show snapshot information from compact flash";
+          }
+          enum usb {
+            description
+            "Show snapshot information from device connected to USB port";
+          }
+          enum hard-disk {
+            description "Show snapshot information from hard disk";
+          }
+          enum internal {
+            description "Show snapshot information from internal flash";
+          }
+          enum external {
+            description "Show snapshot information from external flash";
+          }
+        }
+      }
+    }
+    output {
+      uses snapshot-information;
+    }
+  }
+
+  // show system software
+  rpc get-software-information {
+    description "Show software process revision levels";
+    input {
+      choice information-detail {
+        mandatory true;
+        leaf detail {
+          type empty;
+        }
+        leaf brief {
+          type empty;
+        }
+      }
+    }
+    output {
+      container software-information {
+        leaf host-name {
+          type string;
+        }
+        leaf product-model {
+          type string;
+        }
+        leaf product-name {
+          type string;
+        }
+        list package-information {
+          key name;
+          leaf name {
+            type string;
+          }
+          leaf comment {
+            type string;
+          }
+        }
+        list version-information {
+          key component;
+          leaf component {
+            type string;
+          }
+          leaf major {
+            type int32;
+          }
+          leaf minor {
+            type int32;
+          }
+          leaf release-category {
+            type string;
+          }
+          leaf build-number {
+            type int32;
+          }
+          leaf spin {
+            type int32;
+          }
+          leaf builder {
+            type string;
+          }
+          leaf build-date {
+            type string;
+          }
+        }
+      }
+    }
+  }
+
+  // request support information
+  rpc get-support-information {
+    // no input
+    output {
+      leaf output {
+        type string;
+      }
+    }
+  }
+
+  // show system alarms
+  rpc get-system-alarm-information {
+    description "Show system alarm status";
+    output {
+      uses alarm-information;
+    }
+  }
+
+  // show system storage
+  rpc get-system-storage {
+    description "Show local storage data";
+    input {
+      leaf detail {
+        type empty;
+      }
+    }
+    output {
+      container system-storage-information {
+        list filesystem {
+          description "Information about system storage";
+          leaf filesystem-name {
+            type string;
+            description "Name of the filesystem";
+          }
+          leaf total-blocks {
+            type int;
+            description "Number of 512 blocks";
+          }
+          leaf used-blocks {
+            type int;
+            description "Used storage space";
+          }
+          leaf available-blocks {
+            type int;
+            description "Available storage space";
+          }
+          leaf used-percent {
+            type int;
+            description "Percent of filesystem in use";
+          }
+          leaf mounted-on {
+            type string;
+            description "Filesystem mounted on";
+          }
+        }
+      }
+    }
+  }
+
+  // show system uptime
+  rpc get-system-uptime-information {
+    description "Show time since system and processes started";
+    input {
+      choice choice-interconnect-device {
+        leaf interconnect-device {
+          type string;
+          description "Interconnect device identifier";
+        }
+        leaf node-group {
+          type string;
+          description "Node group identifier";
+        }
+        leaf infrastructure {
+          type string;
+          description "Fabric manager or fabric control identifier";
+        }
+        leaf director-group {
+          type string;
+          description "Director device name (dg0 or dg1)";
+        }
+      }
+    }
+    output {
+      container system-uptime-information {
+        container last-configured-time {
+          description "Last configured time";
+          leaf date-time {
+            type string;
+          }
+          leaf time-length {
+            type string;
+          }
+          leaf user {
+            type string;
+            description "User name executing this script";
+          }
+        }
+        container current-time {
+          description "Current time";
+          leaf date-time {
+            type string;
+          }
+        }
+        container system-booted-time {
+          description "System booted time";
+          leaf date-time {
+            type string;
+          }
+          leaf time-length {
+            type string;
+          }
+        }
+        container protocols-started-time {
+          description "Protocols started time";
+          leaf date-time {
+            type string;
+          }
+          leaf time-length {
+            type string;
+          }
+        }
+        container uptime-information {
+          description "System uptime details";
+          leaf date-time {
+            type string;
+          }
+          leaf up-time {
+            type string;
+            description "Uptime in ascii format";
+          }
+          leaf active-user-count {
+            type int;
+            description "Number of users currently logged in";
+          }
+          leaf load-average-1 {
+            type string;
+            description "Load average for last 1 minute";
+          }
+          leaf load-average-5 {
+            type string;
+            description "Load average for last 5 minutes";
+          }
+          leaf load-average-15 {
+            type string;
+            description "Load average for last 15 minutes";
+          }
+          container user-table {
+            list user-entry {
+              leaf user {
+                type string;
+                description "User name executing this script";
+              }
+              leaf tty {
+                type string;
+                description "Name of the terminal the user is on";
+              }
+              leaf from {
+                type string;
+                description "Host from which the user is logged on";
+              }
+              leaf login-time {
+                type string;
+                description "Time the user logged on";
+              }
+              leaf idle-time {
+                type string;
+                description "Time since the user last typed anything";
+              }
+            }
+/*
+            container process-table {
+              list process-entry {
+              }
+            }
+*/
+          }
+        }
+      }
+    }
+  }
+
+  // op
+  rpc op-script {
+    description "Invoke an operation script";
+    input {
+      leaf script {
+        mandatory true;
+        type string;
+        description "Name of script to run";
+      }
+      leaf detail {
+        description "Display detailed output";
+        type empty;
+      }
+      list argument {
+        description "Argument to pass to script";
+        leaf name {
+          description "Argument name";
+          type string;
+        }
+        leaf value {
+          description "Argument value";
+          type string;
+        }
+      }
+    }
+    /* FIXME don't know what the output is
+    output {
+    }
+    */
+  }
+
+  // ping
+  rpc ping {
+    description "Ping remote target";
+    input {
+      leaf count {
+        type uint32;
+        description "Number of ping requests to send";
+      }
+      leaf wait {
+        type uint32;
+        description "Maximum wait time after sending final packet";
+      }
+      leaf no-resolve {
+        type empty;
+        description "Don't attempt to print addresses symbolically";
+      }
+      leaf rapid {
+        type empty;
+        description "Send requests rapidly (default count of 5)";
+      }
+      leaf record-route {
+        type empty;
+        description "Record and report packet's path (IPv4)";
+      }
+      leaf detail {
+        type empty;
+        description "Display incoming interface of received packet";
+      }
+      leaf do-not-fragment {
+        type empty;
+        description "Don't fragment echo request packets (IPv4)";
+      }
+      leaf loose-source {
+        type string;
+        description "Intermediate loose source route entry (IPv4)";
+      }
+      leaf interface {
+        type string;
+        description "Source interface (multicast, all-ones, unrouted packets)";
+      }
+      leaf interval {
+        type uint32;
+        description "Delay between ping requests";
+      }
+      leaf source {
+        type string;
+        description "Source address of echo request";
+      }
+      leaf pattern {
+        type string;
+        description "Hexadecimal fill pattern";
+      }
+      leaf size {
+        type uint32;
+        description "Size of request packets";
+      }
+      leaf strict {
+        type empty;
+        description "Use strict source route option (IPv4)";
+      }
+      leaf strict-source {
+        type empty;
+        description "Intermediate strict source route entry (IPv4)";
+      }
+      leaf ttl {
+        type uint32;
+        description "IP time-to-live value (IPv6 hop-limit value)";
+      }
+      leaf verbose {
+        type empty;
+        description "Display detailed output";
+      }
+      leaf tos {
+        type string;
+        description "IP type-of-service value";
+      }
+      leaf bypass-routing {
+        type empty;
+        description "Bypass routing table, use specified interface";
+      }
+      leaf inet {
+        type empty;
+        description "Force ping to IPv4 destination";
+      }
+      leaf inet6 {
+        type empty;
+        description "Force ping to IPv6 destination";
+      }
+      leaf routing-instance {
+        type string;
+        description "Routing instance for ping attempt";
+      }
+      leaf mac-address {
+        type yang:mac-address;
+        description "MAC address of the nexthop in xx:xx:xx:xx:xx:xx format";
+      }
+      leaf host {
+        type string;
+        description "Hostname or IP address of remote host";
+        mandatory true;
+      }
+      leaf logical-system {
+        type string;
+        description "Name of logical system";
+      }
+    }
+    output {
+      container ping-results {
+        leaf target-host {
+          type string;
+        }
+        leaf target-ip {
+          type inet:ip-address;
+        }
+        leaf packet-size {
+          type uint32;
+        }
+
+        list probe-result {
+          key probe-index;
+          leaf probe-index {
+            type uint32;
+          }
+          leaf probe-success {
+            type empty;
+          }
+          leaf sequence-number {
+            type uint32;
+          }
+          leaf ip-address {
+            type inet:ip-address;
+          }
+          leaf time-to-live {
+            type uint32;
+          }
+          leaf response-size {
+            type uint32;
+          }
+          leaf rtt {
+            type uint32;
+          }
+          leaf ingress-interface {
+            type string;
+          }
+        }
+
+        container probe-results-summary {
+          leaf probes-sent {
+            type uint32;
+          }
+          leaf responses-received {
+            type uint32;
+          }
+          leaf packet-loss {
+            type uint32 {
+              range "0..100";
+            }
+          }
+          leaf rtt-minimum {
+            type uint32;
+          }
+          leaf rtt-maximum {
+            type uint32;
+          }
+          leaf rtt-average {
+            type uint32;
+          }
+          leaf rtt-stddev {
+            type uint32;
+          }
+        }
+
+        choice ping-result {
+          leaf ping-failure {
+            type string;
+          }
+          leaf ping-success {
+            type empty;
+          }
+        }
+      }
+    }
+  }
+
+  // request system software add
+  rpc request-package-add {
+    input {
+      leaf package-name {
+        type string;
+        mandatory true;
+      }
+      leaf reboot {
+        type empty;
+      }
+    }
+    output {
+      leaf output {
+        type string;
+      }
+      leaf package-result {
+        type int32;
+      }
+    }
+  }
+
+  // request system reboot
+  rpc request-reboot {
+    description "Reboot the system";
+    input {
+      choice choice-re0 {
+        leaf re0 {
+          description RE0;
+          type empty;
+        }
+        leaf re1 {
+          description RE1;
+          type empty;
+        }
+      }
+      leaf at {
+        type string;
+        default now;
+        description "Time at which to perform the operation";
+      }
+      leaf in {
+        type string;
+        default now;
+        description "Number of minutes to delay before operation";
+      }
+      leaf message {
+        type string;
+        description "Message to display to all users";
+      }
+      leaf power-off {
+        description "Power-off FRUs before shutting down RE";
+        type enumeration {
+          enum fpc {
+            description "Power off FPCs";
+          }
+        }
+      }
+      leaf media {
+        description "Boot media for next boot";
+        type enumeration {
+          enum disk {
+            description "Boot off hard disk";
+          }
+          enum compact-flash {
+            description "Standard boot off flash device";
+          }
+          enum usb {
+            description "Boot off USB device";
+          }
+          enum removable-compact-flash {
+            description "Boot off removable compact flash device";
+          }
+          enum external {
+            description "Boot from external storage device";
+          }
+          enum internal {
+            description "Boot from internal flash";
+          }
+          enum nand-flash0 {
+            description "Boot off nand-flash0";
+          }
+          enum nand-flash1 {
+            description "Boot off nand-flash1";
+          }
+        }
+      }
+      leaf slice {
+        description "Partition on boot media to boot from";
+        type enumeration {
+          enum alternate {
+            description "Boot from alternate partition";
+          }
+          enum 1 {
+            description "Boot from first partition";
+          }
+          enum 2 {
+            description "Boot from second partition";
+          }
+        }
+      }
+      choice choice-both-routing-engines {
+        leaf both-routing-engines {
+          description "Reboot both the Routing Engines";
+          type empty;
+        }
+        leaf other-routing-engine {
+          description "Reboot the other Routing Engine";
+          type empty;
+        }
+      }
+      leaf node {
+        description "Reboot the specific node";
+        type union {
+          type enumeration {
+            enum all {
+              value 1;
+              description "All nodes";
+            }
+          }
+          type enumeration {
+            enum local {
+              value 2;
+              description "Local node";
+            }
+          }
+          type enumeration {
+            enum primary {
+              value 3;
+              description "Primary node";
+            }
+          }
+          type string {
+            pattern "0|1";
+          }
+        }
+      }
+    }
+    output {
+      container request-reboot-results {
+        leaf request-reboot-status {
+          type string;
+        }
+      }
+    }
+  }
+
+  // request system snapshot
+  rpc request-snapshot {
+    description "Archive data and executable areas";
+    input {
+      leaf partition {
+        description "Partition the media";
+        type empty;
+      }
+      leaf factory {
+        description "Include only files shipped from factory in snapshot";
+        type empty;
+      }
+      leaf as-primary {
+        description "Setup snapshot to be used in the primary boot device";
+        type empty;
+      }
+      leaf swap-size {
+        type string;
+        description "Size of the swap partition";
+      }
+      leaf config-size {
+        type string;
+        description "Size of the config partition";
+      }
+      leaf root-size {
+        type string;
+        description "Size of the root partition";
+      }
+      leaf data-size {
+        type string;
+        description "Size of the data partition";
+      }
+      leaf slice {
+        description "Write snapshot to specified partition";
+        type slice;
+      }
+      leaf media {
+        default compact-flash;
+        description "Media to snapshot to";
+        type enumeration {
+          enum removable-compact-flash {
+            description "Write snapshot to removable compact flash";
+          }
+          enum compact-flash {
+            description "Write snapshot to compact flash";
+          }
+          enum usb {
+            description "Write snapshot to device connected to USB port";
+          }
+          enum hard-disk {
+            description "Write snapshot to hard disk";
+          }
+          enum internal {
+            description "Write snapshot to internal flash";
+          }
+          enum external {
+            description "Write snapshot to external storage device";
+          }
+        }
+      }
+    }
+    output {
+      uses snapshot-information;
+    }
+  }
+
+  rpc traceroute {
+    description "Trace route to remote host";
+    input {
+      leaf gateway {
+        type string;
+        description "Address of router gateway to route through";
+      }
+      leaf ttl {
+        type string;
+        description
+          "IP maximum time-to-live value (or IPv6 maximum hop-limit value)";
+      }
+      leaf wait {
+        type string;
+        description "Number of seconds to wait for response";
+      }
+      leaf no-resolve {
+        description "Don't attempt to print addresses symbolically";
+        type empty;
+      }
+      leaf source {
+        type string;
+        description "Source address to use in outgoing traceroute packets";
+      }
+      leaf tos {
+        description "IP type-of-service field (IPv4)";
+        type int32 {
+          range "0 .. 255";
+        }
+      }
+      leaf as-number-lookup {
+        description "Look up AS numbers for each hop";
+        type empty;
+      }
+      leaf bypass-routing {
+        description "Bypass routing table, use specified interface";
+        type empty;
+      }
+      leaf inet {
+        description "Force traceroute to IPv4 destination";
+        type empty;
+      }
+      leaf inet6 {
+        description "Force traceroute to IPv6 destination";
+        type empty;
+      }
+      leaf interface {
+        type string;
+        description "Name of interface to use for outgoing traffic";
+      }
+      leaf routing-instance {
+        type string;
+        description "Name of routing instance for traceroute attempt";
+      }
+      leaf propagate-ttl {
+        description "Enable propagate-ttl for locally sourced RE traffic";
+        type empty;
+      }
+      leaf host {
+        mandatory true;
+        type string;
+        description "Hostname or address of remote host";
+      }
+      leaf logical-system {
+        type string;
+        description "Name of logical system";
+      }
+    }
+    output {
+      container traceroute-results {
+        leaf target-host {
+          type string;
+          description "Specified target address or hostname";
+        }
+        leaf source {
+          type string;
+          description "Specified source address or hostname";
+        }
+        leaf target-ip {
+          type string;
+          description "Resolved target IP address";
+        }
+        leaf packet-size {
+          type int;
+          description "Packet size of probes (bytes)";
+        }
+        leaf max-hop-index {
+          type int;
+          description "Maximum number of hops (maximum TTL value)";
+        }
+        list hop {
+          description "Traceroute results for a single hop (TTL value)";
+          leaf ttl-value {
+            type int;
+            description "Current TTL value being sent in probes";
+          }
+          leaf percent-loss {
+            type int;
+            description "Probe packet loss (no response at all) as percentage";
+          }
+          leaf icmp-extension {
+            type string;
+            description
+              "String representation of data in ICMP packet extension";
+          }
+          leaf last-host-name {
+            type string;
+            description "Hostname of last probe with this TTL to reach host";
+          }
+          leaf last-ip-address {
+            type string;
+            description "IP address of last probe with this TTL to reach host";
+          }
+          list probe-result {
+            description "Result of one probe";
+            leaf date-determined {
+              type string;
+              description
+                "UTC time when the result was determined, as number of
+               seconds since 1 January 1970";
+            }
+            leaf probe-index {
+              type int;
+              description "Sequence number of probe";
+            }
+            leaf sequence-number {
+              type int;
+              description "Sequence number in response packet";
+            }
+            leaf time-to-live {
+              type int;
+              description "Time-to-live (TTL) value in response packet";
+            }
+            leaf response-size {
+              type int;
+              description "Size of response (bytes)";
+            }
+            leaf rtt {
+              type uint64;
+              description "Route trip time for probe (microseconds)";
+            }
+            leaf ingress-interface {
+              type string;
+              description "Interface that received the response";
+            }
+            container icmp-type {
+              presence "enable icmp-type";
+              description "Type of ICMP message";
+              leaf icmp-type-none {
+                type empty;
+              }
+              leaf icmp-echoreply {
+                type empty;
+              }
+              leaf icmp-unreach {
+                type empty;
+              }
+              leaf icmp-sourcequench {
+                type empty;
+              }
+              leaf icmp-redirect {
+                type empty;
+              }
+              leaf icmp-echo {
+                type empty;
+              }
+              leaf icmp-routeradvert {
+                type empty;
+              }
+              leaf icmp-routersolicit {
+                type empty;
+              }
+              leaf icmp-timxceed {
+                type empty;
+              }
+              leaf icmp-paramprob {
+                type empty;
+              }
+              leaf icmp-tstamp {
+                type empty;
+              }
+              leaf icmp-tstampreply {
+                type empty;
+              }
+              leaf icmp-ireq {
+                type empty;
+              }
+              leaf icmp-ireqreply {
+                type empty;
+              }
+              leaf icmp-maskreq {
+                type empty;
+              }
+              leaf icmp-maskreply {
+                type empty;
+              }
+              leaf icmp6-unreach {
+                type empty;
+              }
+              leaf icmp6-packet-too-big {
+                type empty;
+              }
+              leaf icmp6-time-exceeded {
+                type empty;
+              }
+              leaf icmp6-parameter-problem {
+                type empty;
+              }
+              leaf icmp6-echo-request {
+                type empty;
+              }
+              leaf icmp6-echo-reply {
+                type empty;
+              }
+              leaf icmp6-membership-query {
+                type empty;
+              }
+              leaf icmp6-membership-report {
+                type empty;
+              }
+              leaf icmp6-membership-reduction {
+                type empty;
+              }
+              leaf icmp6-router-solicit {
+                type empty;
+              }
+              leaf icmp6-router-advert {
+                type empty;
+              }
+              leaf icmp6-neighbor-solicit {
+                type empty;
+              }
+              leaf icmp6-neighbor-advert {
+                type empty;
+              }
+              leaf icmp6-redirect {
+                type empty;
+              }
+              leaf icmp6-router-renumbering {
+                type empty;
+              }
+              leaf icmp6-ni-query {
+                type empty;
+              }
+              leaf icmp6-ni-reply {
+                type empty;
+              }
+            }
+            container icmp-code {
+              description "Type of ICMP message type sub code";
+              leaf icmp-code-none {
+                type empty;
+              }
+              leaf icmp-unreach-net {
+                type empty;
+              }
+              leaf icmp-unreach-host {
+                type empty;
+              }
+              leaf icmp-unreach-protocol {
+                type empty;
+              }
+              leaf icmp-unreach-port {
+                type empty;
+              }
+              leaf icmp-unreach-needfrag {
+                type empty;
+              }
+              leaf icmp-unreach-srcfail {
+                type empty;
+              }
+              leaf icmp-unreach-net-unknown {
+                type empty;
+              }
+              leaf icmp-unreach-host-unknown {
+                type empty;
+              }
+              leaf icmp-unreach-isolated {
+                type empty;
+              }
+              leaf icmp-unreach-net-prohib {
+                type empty;
+              }
+              leaf icmp-unreach-host-prohib {
+                type empty;
+              }
+              leaf icmp-unreach-tosnet {
+                type empty;
+              }
+              leaf icmp-unreach-toshost {
+                type empty;
+              }
+              leaf icmp-unreach-filter-prohib {
+                type empty;
+              }
+              leaf icmp-unreach-host-precedence {
+                type empty;
+              }
+              leaf icmp-unreach-precedence-cutoff {
+                type empty;
+              }
+              leaf icmp-redirect-net {
+                type empty;
+              }
+              leaf icmp-redirect-host {
+                type empty;
+              }
+              leaf icmp-redirect-tosnet {
+                type empty;
+              }
+              leaf icmp-redirect-toshost {
+                type empty;
+              }
+              leaf icmp-timxceed-intrans {
+                type empty;
+              }
+              leaf icmp-timxceed-reass {
+                type empty;
+              }
+              leaf icmp-paramprob-optabsent {
+                type empty;
+              }
+              leaf icmp6-unreach-noroute {
+                type empty;
+              }
+              leaf icmp6-unreach-admin {
+                type empty;
+              }
+              leaf icmp6-unreach-beyond-scope {
+                type empty;
+              }
+              leaf icmp6-unreach-address {
+                type empty;
+              }
+              leaf icmp6-unreach-port {
+                type empty;
+              }
+              leaf icmp6-time-exceed-transit {
+                type empty;
+              }
+              leaf icmp6-time-exceed-reassembly {
+                type empty;
+              }
+              leaf icmp6-parameter-problem-header {
+                type empty;
+              }
+              leaf icmp6-parameter-problem-nextheader {
+                type empty;
+              }
+              leaf icmp6-parameter-problem-option {
+                type empty;
+              }
+              leaf icmp6-ni-subject-ipv6 {
+                type empty;
+              }
+              leaf icmp6-ni-subject-fqdn {
+                type empty;
+              }
+              leaf icmp6-ni-subject-ipv4 {
+                type empty;
+              }
+              leaf icmp6-ni-success {
+                type empty;
+              }
+              leaf icmp6-ni-refused {
+                type empty;
+              }
+              leaf icmp6-ni-unknown {
+                type empty;
+              }
+            }
+            leaf ip-address {
+              type ipaddr;
+              description "IP address of interface that received probe";
+            }
+            leaf host-name {
+              type string;
+              description "Hostname of interface that received probe";
+            }
+            container ip-options {
+              description "IP options contained in the response";
+              container record-route {
+                description "Record route (RR) IP option";
+                list record-route-host {
+                  description "Host entry in the record route";
+                  leaf ip-address {
+                    type ipaddr;
+                    description "IP address of interface that received probe";
+                  }
+                  leaf host-name {
+                    type string;
+                    description "Hostname of interface that received probe";
+                  }
+                }
+              }
+              container loose-source-route {
+                description "Loose source route (LSRR) IP option";
+                list record-route-host {
+                  description "Host entry in the record route";
+                  leaf ip-address {
+                    type ipaddr;
+                    description "IP address of interface that received probe";
+                  }
+                  leaf host-name {
+                    type string;
+                    description "Hostname of interface that received probe";
+                  }
+                }
+              }
+              container strict-source-route {
+                description "Strict source route (SSRR) IP option";
+                list record-route-host {
+                  description "Host entry in the record route";
+                  leaf ip-address {
+                    type ipaddr;
+                    description "IP address of interface that received probe";
+                  }
+                  leaf host-name {
+                    type string;
+                    description "Hostname of interface that received probe";
+                  }
+                }
+              }
+            }
+            leaf probe-success {
+              description "A valid response was received";
+              type empty;
+            }
+            leaf probe-duplicate {
+              description "A duplicate response was received";
+              type empty;
+            }
+            leaf probe-reached {
+              description "Probe reached destination host";
+              type empty;
+            }
+            leaf probe-failure {
+              description "No valid response received";
+              type string;
+/*
+              type enumeration {
+                enum "no reply";
+                enum "probe error";
+                enum "unexpected sequence";
+                enum "internal error";
+              }
+*/
+            }
+          }
+        }
+        leaf traceroute-success {
+          description "Destination was reached";
+          type empty;
+        }
+        leaf traceroute-failure {
+          description "Traceroute failed";
+          type string;
+/*
+          type enumeration {
+            enum "no response";
+            enum "internal error";
+            enum "target unresolved";
+            enum "source unresolved";
+            enum "target invalid";
+            enum "source invalid";
+            enum "interface invalid";
+          }
+*/
+        }
+      }
+    }
+  }
+
+  grouping snapshot-information {
+    container snapshot-information {
+      container inform {
+        leaf message {
+          type string;
+          description "Syslog message text";
+        }
+        leaf source-daemon {
+          type string;
+        }
+      }
+      container snapshot-copy {
+        leaf source-directory {
+          type string;
+          description "Directory to backup";
+        }
+        leaf destination-directory {
+          type string;
+          description "Backup directory";
+        }
+      }
+      container archived-directory-list {
+        presence "enable archived-directory-list";
+        leaf directory-name {
+          type string;
+          description "Directory name";
+        }
+      }
+      container snapshot-partitions {
+        description "Partitions on snapshot medium";
+        list partition-information {
+          description "Partition information";
+          leaf partition {
+            type string;
+            description "Partition letter";
+          }
+          leaf mount-point {
+            type string;
+            description "Mount point";
+          }
+          leaf partition-size {
+            type string;
+            description "Size of partition";
+          }
+          leaf snapshot-argument {
+            type string;
+            description "Argument to snapshot used to configure size";
+          }
+        }
+      }
+      leaf snapshot-medium {
+        type string;
+        description "Media type of the snapshot";
+      }
+      leaf creation-date {
+        type string;
+        description "Snapshot creation date";
+      }
+      container software-version {
+        description "Version of software snapshot";
+        list package {
+          description "Package in software snapshot";
+          leaf package-name {
+            type string;
+            description "Name of software package";
+          }
+          leaf package-version {
+            type string;
+            description "Version of software package";
+          }
+        }
+      }
+    }
+  }
+
+  grouping alarm-information {
+    container alarm-information {
+      description "Information about all active alarms";
+      container alarm-summary {
+        description "Number of alarms currently active";
+        leaf active-alarm-count {
+          type int;
+          description "Number of active alarms";
+        }
+        leaf no-active-alarms {
+          description "No active alarms";
+          type empty;
+        }
+      }
+      list alarm-detail {
+        description "Detailed information about an active alarm";
+        leaf alarm-time {
+          type string;
+          description "Time of the alarm";
+        }
+        leaf alarm-class {
+          description "Class of the alarm";
+          type enumeration {
+            enum Major;
+            enum Minor;
+            enum Ignore;
+          }
+        }
+        leaf alarm-description {
+          type string;
+          description "Description of the alarm";
+        }
+        leaf alarm-short-description {
+          type string;
+          description "Short description of the alarm";
+        }
+        leaf alarm-type {
+          type string;
+          description "Type (class) of the alarm";
+        }
+      }
+    }
+  }
+
+  grouping fpc-information {
+    container fpc-information {
+      // <rpc-tag>get-fpc-information</rpc-tag>
+      // <rpc-tag>get-pic-detail</rpc-tag>
+      // <rpc-tag>get-pic-information</rpc-tag>
+      list fpc {
+        leaf slot {
+          type int;
+        }
+        leaf logical-slot {
+          type int;
+        }
+        leaf state {
+          description "Status of the component";
+          type string;
+/*
+          type enumeration {
+            enum "Online Master";
+            enum "Online Standby";
+            enum "Online Active";
+            enum "Online Inactive";
+            enum Empty;
+            enum Present;
+            enum "Announce Offline";
+            enum Offline;
+          }
+*/
+        }
+        leaf description {
+          type string;
+          description "Description of this component";
+        }
+        leaf error-code {
+          type int;
+          description "Code resulting from major or minor error";
+        }
+        leaf temperature {
+          type string;
+          description "Temperature of the item";
+        }
+        leaf cpu-total {
+          type int;
+          description "Percentage of CPU utilized";
+        }
+        leaf cpu-interrupt {
+          type int;
+          description "Percentage of CPU utilized by interrupt processing";
+        }
+        leaf cpu-less-info-str {
+          type string;
+          description "Flexible PIC Concentrator (FPC) without CPU";
+        }
+        leaf memory-dram-size {
+          type int;
+          description DRAM;
+        }
+        leaf memory-sram-size {
+          type int;
+          description SRAM;
+        }
+        leaf memory-sdram-size {
+          type int;
+          description SDRAM;
+        }
+        leaf memory-rldram-size {
+          type int;
+          description RLDRAM;
+        }
+        leaf memory-ddr-dram-size {
+          type int;
+          description "DDR DRAM";
+        }
+        leaf memory-notification-sdram-size {
+          type int;
+          description "Notification SDRAM";
+        }
+        leaf memory-heap-utilization {
+          type int;
+          description "Percentage of heap memory utilized";
+        }
+        leaf memory-buffer-utilization {
+          type int;
+          description "Percentage of buffer memory utilized";
+        }
+        leaf asic-information {
+          type string;
+        }
+        leaf start-time {
+          type string;
+          description "Time this component was started";
+        }
+        leaf up-time {
+          type string;
+          description "Length of time this component has been operational";
+        }
+        leaf comment {
+          type string;
+        }
+        list pic {
+          leaf pic-slot {
+            type int;
+          }
+          leaf pic-type {
+            type string;
+          }
+          leaf pic-state {
+            type string;
+          }
+          leaf comment {
+            type string;
+          }
+        }
+        container pic-detail {
+          leaf slot {
+            type int;
+          }
+          leaf pic-slot {
+            type int;
+          }
+          leaf pic-type {
+            type string;
+          }
+          leaf asic-type {
+            type string;
+            description "Type of ASIC on the PIC";
+          }
+          leaf comment {
+            type string;
+          }
+          leaf pic-version {
+            type string;
+            description "PIC hardware version";
+          }
+          leaf state {
+            description "Status of the component";
+            type string;
+/*
+            type enumeration {
+              enum "Online Master";
+              enum "Online Standby";
+              enum "Online Active";
+              enum "Online Inactive";
+              enum Empty;
+              enum Present;
+              enum "Announce Offline";
+              enum Offline;
+            }
+*/
+          }
+          leaf cpu-total {
+            type int;
+            description "Percentage of CPU utilized";
+          }
+          leaf cpu-interrupt {
+            type int;
+            description "Percentage of CPU utilized by interrupt processing";
+          }
+          leaf memory-buffer-utilization {
+            type int;
+            description "Percentage of buffer memory utilized";
+          }
+          leaf memory-heap-utilization {
+            type int;
+            description "Percentage of heap memory utilized";
+          }
+          leaf memory-dram-size {
+            type int;
+            description DRAM;
+          }
+          leaf cpu-sw-version {
+            type string;
+            description "Version of operating system running on the PIC";
+          }
+          leaf cpu-rom-version {
+            type string;
+            description "PIC ROM version";
+          }
+          leaf up-time {
+            type string;
+            description "Length of time this component has been operational";
+          }
+          leaf pic-package {
+            type string;
+          }
+          leaf pic-clock-sync {
+            type string;
+            description "PIC Clock Synchronization";
+          }
+          leaf pic-multirate-mode {
+            type string;
+          }
+          leaf pic-channelization-mode {
+            type string;
+            description "PIC Channelization Mode";
+          }
+          leaf configured-mode {
+            type string;
+          }
+          container port-information {
+            leaf port {
+              type uint;
+            }
+          }
+        }
+        leaf max-power-consumption {
+          type int;
+        }
+        leaf red-led {
+          description "Red LED is lit";
+          type empty;
+        }
+        leaf green-led {
+          description "Green LED is lit";
+          type empty;
+        }
+      }
+      leaf fpc-slot {
+        type int;
+        description "FPC slot";
+      }
+      leaf fpc-power-limit {
+        type string;
+        description "FPC power limit";
+      }
+      leaf fpc-priority {
+        type string;
+        description "Priority options";
+      }
+      leaf fpc-power {
+        type string;
+        description "Total FPC power consumption";
+      }
+      leaf fpc-status {
+        type string;
+        description "FPC status";
+      }
+      leaf fpc-firmware-version {
+        type string;
+        description "POE firmware version";
+      }
+    }
+  }
+
+  grouping environment-component-information {
+    container environment-component-information {
+      // <rpc-tag>get-environment-pem-information</rpc-tag>
+      // <rpc-tag>get-environment-mcs-information</rpc-tag>
+      // <rpc-tag>get-environment-power-supply-unit-information</rpc-tag>
+      // <rpc-tag>get-environment-cb-information</rpc-tag>
+      // <rpc-tag>get-environment-scg-information</rpc-tag>
+      // <rpc-tag>get-environment-cip-information</rpc-tag>
+      // <rpc-tag>get-environment-psu-information</rpc-tag>
+      // <rpc-tag>get-environment-ccg-information</rpc-tag>
+      // <rpc-tag>get-environment-re-information</rpc-tag>
+      // <rpc-tag>get-environment-sfm-information</rpc-tag>
+      // <rpc-tag>get-environment-sib-information</rpc-tag>
+      // <rpc-tag>get-environment-pcg-information</rpc-tag>
+      // <rpc-tag>get-environment-psm-information</rpc-tag>
+      // <rpc-tag>get-environment-feb-information</rpc-tag>
+      // <rpc-tag>get-environment-fpm-information</rpc-tag>
+      // <rpc-tag>get-environment-fpc-information</rpc-tag>
+      // <rpc-tag>get-environment-pdu-information</rpc-tag>
+      list environment-component-item {
+        description "Chassis environment component";
+        leaf name {
+          type string;
+          description "Name of this component";
+        }
+        leaf state {
+          description "Status of the component";
+          type string;
+/*
+          type enumeration {
+            enum "Online Master";
+            enum "Online Standby";
+            enum "Online Active";
+            enum "Online Inactive";
+            enum Empty;
+            enum Present;
+            enum "Announce Offline";
+            enum Offline;
+          }
+*/
+        }
+        container temperature-reading {
+          leaf temperature-name {
+            type string;
+          }
+          leaf temperature {
+            type string;
+            description "Temperature of the item";
+          }
+        }
+        leaf bus-revision {
+          type int;
+          description "Bus revision";
+        }
+        leaf cmb-revision {
+          type int;
+          description "CMB revision";
+        }
+        leaf fpga-revision {
+          type int;
+          description "FPGA revision";
+        }
+        container fpga-revision-detail {
+          description "FPGA revision in detail";
+          leaf fpga-revision-name {
+            type string;
+          }
+          leaf fpga-revision-value {
+            type string;
+          }
+        }
+        leaf slave-revision {
+          type uint;
+          description "Slave revision";
+        }
+        leaf reason {
+          type string;
+          description Reason;
+        }
+        container revision {
+          leaf revision-name {
+            type string;
+            description "Revision Name";
+          }
+          leaf revision-number {
+            type uint;
+            description "Revision Number";
+          }
+        }
+        container slave-registers-information {
+          leaf slave-registers-title {
+            type string;
+            description "Title for the dump of slave registers";
+          }
+          list slave-registers {
+            description "Slave register values";
+            leaf slave-registers-name {
+              type string;
+            }
+            leaf slave-registers-value {
+              type string;
+            }
+          }
+        }
+        list fpga-registers {
+          description "FPGA regiseter values";
+          leaf fpga-registers-name {
+            type string;
+          }
+          leaf fpga-registers-value {
+            type string;
+          }
+        }
+        container power-information {
+          container power-title {
+            leaf power-type {
+              description "Title for the display of power";
+              type string;
+/*
+              type enumeration {
+                enum Power;
+                enum "Power (Base/PMB/MMB)";
+                enum "Power A-Board";
+                enum "Power B-Board";
+                enum "SPP Power";
+                enum "SPR Power";
+                enum "Power (B)";
+                enum "Power 1";
+                enum "Power 2";
+                enum "Power 3";
+                enum "Power 4";
+              }
+*/
+            }
+            leaf power-state {
+              type string;
+              description "State of power";
+            }
+          }
+          leaf voltage-title {
+            type string;
+            description "Title for the display of voltage";
+          }
+          container voltage {
+            leaf reference-voltage {
+              type string;
+              description "Voltage of the item in Volts";
+            }
+            leaf actual-voltage {
+              type int;
+              description "Voltage of the item in mVlots";
+            }
+          }
+          leaf psm-hours-used {
+            type uint;
+            description "Hours used for this component";
+          }
+        }
+        leaf frequency {
+          type string;
+          description Frequency;
+        }
+        container pcg-frequency {
+          description "PCG Frequency";
+          leaf pcg-frequency-setting {
+            type string;
+          }
+          leaf pcg-frequency-measurement {
+            type string;
+          }
+        }
+        leaf time-used {
+          type string;
+          description "Length of time this component has been used";
+        }
+        container dc-information {
+          leaf dc-input {
+            type string;
+            description "DC input state";
+          }
+          leaf dc-input-status {
+            type string;
+            description "DC input status";
+          }
+          leaf dc-feed0-voltage {
+            type string;
+            description "DC feed0 voltage";
+          }
+          leaf dc-feed1-voltage {
+            type string;
+            description "DC feed1 voltage";
+          }
+          leaf dc-feed0-current {
+            type string;
+            description "DC feed0 current";
+          }
+          leaf dc-feed1-current {
+            type string;
+            description "DC feed1 current";
+          }
+          leaf dc-feed0-power {
+            type string;
+            description "DC feed0 power";
+          }
+          leaf dc-feed1-power {
+            type string;
+            description "DC feed1 power";
+          }
+          leaf dc-output {
+            type string;
+            description "DC output state";
+          }
+          leaf ac-input {
+            type string;
+            description "AC input state";
+          }
+          leaf ac-output {
+            type string;
+            description "AC output state";
+          }
+          container dc-detail {
+            description "Detailed DC information";
+            leaf dc-device {
+              type string;
+            }
+            leaf dc-voltage {
+              type uint;
+            }
+            leaf str-dc-voltage {
+              type string;
+            }
+            leaf str2-dc-voltage {
+              type string;
+            }
+            leaf dc-current {
+              type uint;
+            }
+            leaf str-dc-current {
+              type string;
+            }
+            leaf str2-dc-current {
+              type string;
+            }
+            leaf dc-power {
+              type uint;
+            }
+            leaf str-dc-power {
+              type string;
+            }
+            leaf str2-dc-power {
+              type string;
+            }
+            leaf dc-load {
+              type uint;
+            }
+            leaf str-dc-load {
+              type string;
+            }
+            leaf str2-dc-load {
+              type string;
+            }
+          }
+          container dc-in-detail2 {
+            description "Detailed DC input information";
+            leaf dc-in-device2 {
+              type string;
+            }
+            leaf dc-in-voltage-string {
+              type string;
+            }
+            leaf dc-in-current-string {
+              type string;
+            }
+            leaf dc-in-power-string {
+              type string;
+            }
+            leaf dc-in-load-string {
+              type string;
+            }
+          }
+          container dc-detail2 {
+            description "Detailed DC information";
+            leaf dc-device2 {
+              type string;
+            }
+            leaf dc-voltage-string {
+              type string;
+            }
+            leaf dc-current-string {
+              type string;
+            }
+            leaf dc-power-string {
+              type string;
+            }
+            leaf dc-load-string {
+              type string;
+            }
+          }
+        }
+        leaf load {
+          type string;
+          description Load;
+        }
+        leaf ac-input_status {
+          type string;
+          description "AC input status";
+        }
+        leaf ac-feed0-voltage {
+          type string;
+          description "AC feed0 voltage";
+        }
+        leaf ac-feed1-voltage {
+          type string;
+          description "AC feed1 voltage";
+        }
+        leaf ac-feed0-current {
+          type string;
+          description "AC feed0 current";
+        }
+        leaf ac-feed1-current {
+          type string;
+          description "AC feed1 current";
+        }
+        leaf ac-feed0-power {
+          type string;
+          description "AC feed0 power";
+        }
+        leaf ac-feed1-power {
+          type string;
+          description "AC feed1 power";
+        }
+        container pmbus-table {
+          presence "enable pmbus-table";
+          list pmbus-table-entry {
+            description "Power Management Bus Device information";
+            leaf pmbus-device-name {
+              type string;
+            }
+            leaf pmbus-expected-voltage {
+              type uint;
+            }
+            leaf pmbus-actual-voltage {
+              type uint;
+            }
+            leaf pmbus-actual-current {
+              type uint;
+            }
+            leaf pmbus-calculated-power {
+              type uint;
+            }
+          }
+        }
+        container airflow-direction {
+          leaf airflow {
+            type string;
+          }
+          leaf direction {
+            type string;
+            description "Airflow direction";
+          }
+        }
+        container input-voltage {
+          leaf voltage-name {
+            type string;
+            description "Input voltage";
+          }
+          leaf voltage-value {
+            type uint;
+          }
+        }
+        container output-detail {
+          description "Detailed power output information";
+          leaf output-voltage {
+            type uint;
+          }
+          leaf output-current {
+            type uint;
+          }
+        }
+        container pdu-information {
+          container pdu-status {
+          }
+          container efuse {
+            description "PDU efuse information";
+            leaf name {
+              type string;
+              description "Name of this component";
+            }
+            leaf state {
+              description "Status of the component";
+              type string;
+/*
+              type enumeration {
+                enum "Online Master";
+                enum "Online Standby";
+                enum "Online Active";
+                enum "Online Inactive";
+                enum Empty;
+                enum Present;
+                enum "Announce Offline";
+                enum Offline;
+              }
+*/
+            }
+          }
+          leaf hours-used {
+            type uint;
+            description "Hours used for this component";
+          }
+          container pdu-firmware {
+            description "PDU firmware information";
+            leaf firmware-name {
+              type string;
+              description "Name of this component";
+            }
+            leaf firmware-version {
+              type string;
+              description "Firmware version string for this component";
+            }
+          }
+        }
+        container psm-information {
+          container psm-status {
+            leaf dc-input {
+              type string;
+              description "DC input state";
+            }
+            leaf ac-input {
+              type string;
+              description "AC input state";
+            }
+            leaf fans {
+              type string;
+              description "Fan status for this component";
+            }
+            leaf dc-output {
+              type string;
+              description "DC output state";
+            }
+            leaf ac-output {
+              type string;
+              description "AC output state";
+            }
+          }
+          leaf temperature {
+            type string;
+            description "Temperature of the item";
+          }
+          leaf hours-used {
+            type uint;
+            description "Hours used for this component";
+          }
+          leaf firmware-version {
+            type string;
+            description "Firmware version string for this component";
+          }
+        }
+      }
+    }
+  }
+}

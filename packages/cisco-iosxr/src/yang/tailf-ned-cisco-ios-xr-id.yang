@@ -1,0 +1,12 @@
+module tailf-ned-cisco-ios-xr-id {
+  namespace 'http://tail-f.com/ned/cisco-ios-xr-id';
+  prefix cisco-ios-xr-id;
+
+  import tailf-ncs-ned {
+    prefix ned;
+  }
+
+  identity cisco-ios-xr {
+    base ned:cli-ned-id;
+  }
+}

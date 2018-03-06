@@ -1,0 +1,14 @@
+<ned>
+  <target-system>
+    <target>
+      <hardware>ASR9K</hardware>
+      <software>Version 4.2.3</software>
+    </target>
+  </target-system>
+  <test-system>
+    <target>
+      <hardware>ASR9K</hardware>
+      <software>Version 4.2.3</software>
+    </target>
+  </test-system>
+</ned>

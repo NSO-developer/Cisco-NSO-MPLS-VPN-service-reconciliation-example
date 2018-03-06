@@ -1,0 +1,303 @@
+// =========================================================================
+//                          CISCO-IOS NED STATS
+// =========================================================================
+
+module tailf-ned-cisco-ios-stats {
+  namespace "urn:ios-stats";
+  prefix ios-stats;
+
+  import tailf-common {
+    prefix tailf;
+  }
+
+
+  // =========================================================================
+  // TYPEDEF
+  // =========================================================================
+
+  // IPv4 prefix (address and mask length) in A.B.C.D/P format
+  typedef ipv4-prefix {
+    type string {
+      pattern
+      '(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+      +  '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])'
+      + '/(([0-9])|([1-2][0-9])|(3[0-2]))';
+    }
+  }
+
+  // IPv6 prefix in standard format
+  typedef ipv6-prefix {
+    type string {
+      pattern '((:|[0-9a-fA-F]{0,4}):)([0-9a-fA-F]{0,4}:){0,5}'
+      + '((([0-9a-fA-F]{0,4}:)?(:|[0-9a-fA-F]{0,4}))|'
+      + '(((25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}'
+      + '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])))'
+      + '(/(([0-9])|([0-9]{2})|(1[0-1][0-9])|(12[0-8])))';
+      pattern '(([^:]+:){6}(([^:]+:[^:]+)|(.*\..*)))|'
+      + '((([^:]+:)*[^:]+)?::(([^:]+:)*[^:]+)?)'
+      + '(/.+)';
+    }
+  }
+
+
+  // =========================================================================
+  //                        MODEL
+  // =========================================================================
+
+  /// ========================================================================
+  /// commands
+  /// ========================================================================
+
+  container commands {
+    tailf:action idle-timeout {
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+        leaf time {
+          type int32;
+        }
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+
+    tailf:action version {
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+  }
+
+
+  /// ========================================================================
+  /// idle-timeout
+  /// ========================================================================
+
+  // Or alternatively if we want the commands defined as RPCs
+  rpc idle-timeout {
+    tailf:actionpoint ncsinternal {
+      tailf:internal;
+    }
+    input {
+      leaf time {
+        type int32;
+      }
+    }
+    output {
+      leaf result {
+        type string;
+      }
+    }
+  }
+
+
+  /// ========================================================================
+  /// interfaces
+  /// ========================================================================
+
+  list interfaces {
+    config false;
+    key "type name";
+
+    leaf name {
+      type string;
+    }
+
+    leaf "type" {
+      type string;
+    }
+
+    leaf ip-address {
+      type union {
+        type ipv4-prefix;
+        type ipv6-prefix;
+      }
+    }
+
+    leaf mac-address {
+      type string;
+    }
+
+  }
+
+
+  /// ========================================================================
+  /// exec
+  /// ========================================================================
+
+  container exec {
+    tailf:info "Execute commands on device";
+
+    // show [arg 1] .. [arg N]
+    tailf:action show {
+      tailf:info "Execute show commands";
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+        leaf-list args {
+          tailf:cli-drop-node-name;
+          tailf:cli-flat-list-syntax;
+          type string {
+            tailf:info "show argument(s)";
+          }
+        }
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+
+    // clear [arg 1] .. [arg N]
+    tailf:action clear {
+      tailf:info "Reset functions";
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+        leaf-list args {
+          tailf:cli-drop-node-name;
+          tailf:cli-flat-list-syntax;
+          type string {
+            tailf:info "clear argument(s)";
+          }
+        }
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+
+    // ping [arg 1] .. [arg N]
+    tailf:action ping {
+      tailf:info "Send echo messages";
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+        leaf-list args {
+          tailf:cli-drop-node-name;
+          tailf:cli-flat-list-syntax;
+          type string {
+            tailf:info "ping argument(s)";
+          }
+        }
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+
+    // copy [arg 1] .. [arg N]
+    tailf:action copy {
+      tailf:info "Copy from one file to another";
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+        leaf-list args {
+          tailf:cli-drop-node-name;
+          tailf:cli-flat-list-syntax;
+          type string {
+            tailf:info "copy argument(s)";
+          }
+        }
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+
+    // reload [arg 1] .. [arg N]
+    tailf:action reload {
+      tailf:info "Halt and perform a cold restart";
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+        leaf-list args {
+          tailf:cli-drop-node-name;
+          tailf:cli-flat-list-syntax;
+          type string {
+            tailf:info "reload argument(s)";
+          }
+        }
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+
+    // traceroute [arg 1] .. [arg N]
+    tailf:action traceroute {
+      tailf:info "Trace route to destination";
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+        leaf-list args {
+          tailf:cli-drop-node-name;
+          tailf:cli-flat-list-syntax;
+          type string {
+            tailf:info "traceroute argument(s)";
+          }
+        }
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+
+    // license [arg 1] .. [arg N]
+    tailf:action license {
+      tailf:info "Smart licensing Commands";
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+        leaf-list args {
+          tailf:cli-drop-node-name;
+          tailf:cli-flat-list-syntax;
+          type string {
+            tailf:info "license argument(s)";
+          }
+        }
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+
+  }
+
+
+  /// ========================================================================
+  //                          EOF
+  /// ========================================================================
+
+}

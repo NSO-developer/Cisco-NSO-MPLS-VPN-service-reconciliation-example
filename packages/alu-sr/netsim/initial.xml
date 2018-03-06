@@ -1,0 +1,5 @@
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <router xmlns="http://tail-f.com/ned/alu-sr">
+    <router-name>Base</router-name>
+  </router>
+</config>

@@ -1,0 +1,117 @@
+.dialog {
+    fieldset {
+        padding-left   : 10px;
+        padding-top    : 10px;
+        padding-bottom : 10px;
+
+        margin-top     : 5px;
+        margin-bottom  : 10px;
+    }
+
+    table.tableContainer-table {
+        tbody {
+            tr {
+                td {
+                    div.dijitTextBox {
+                        margin-top : 5px;
+                        margin-bottom : 5px;
+                    }
+                }
+            }
+        }
+
+        td.tableContainer-labelCell:nth-child(3) {
+            padding-left : 5px;
+        }
+
+    }
+}
+
+div.l3vpnui-main-pane {
+    height : 100%;
+
+    > div.dijitMenuBar {
+        margin-bottom : 10px;
+        border-style : none;
+
+        > div.dijitMenuItem {
+            margin-left : 15px;
+            font-weight: bold;
+        }
+    }
+
+    > div.dijitTabContainer {
+        height : 100%;
+
+        div.l3vpnui-view-topology {
+            height : 100%;
+            width  : 100%;
+
+            div.tailf-dijit-schema-list {
+                height : 30%;
+            }
+
+            div.gridx {
+                //height : 30%;
+            }
+
+            div.l3vpnui-topology-inline-dialog {
+                td.tableContainer-labelCell {
+                    width : 15rem !important;
+                }
+            }
+        }
+
+        div.l3vpnui-view-qos{
+            height : 100%;
+            width  : 100%;
+        }
+    }
+
+    div.tailf-dijit-schema-list {
+        table.dijitSelect {
+            div.dijitInputField {
+                min-width: 40px;
+            }
+
+            input.dijitArrowButtonInner {
+                font-size: inherit !important;
+            }
+        }
+    }
+}
+
+.l3vpn-service-name-button-menu {
+    .dijitButtonNode {
+        width : 50px;
+    }
+    .dijitArrowButton {
+        width : 10px;
+    }
+}
+
+.l3vpn-ce-id-button-menu {
+    .dijitButtonNode {
+        width : 100px;
+    }
+    .dijitArrowButton {
+        width : 10px;
+    }
+}
+
+
+div.l3vpnui-topology-connection-dialog {
+    .dialog;
+}
+
+div.l3vpnui-service-inline-edit-list {
+    margin-top : 5px;
+    margin-left : 10px;
+    margin-right : 12px;
+
+    width : initial;
+
+}
+.dojoDndDisabled {
+    opacity: 0.3;
+}

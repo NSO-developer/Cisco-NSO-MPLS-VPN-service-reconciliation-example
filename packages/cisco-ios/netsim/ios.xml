@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<config xmlns="http://tail-f.com/ns/config/1.0">
+  <tailfned xmlns="urn:ios">
+    <device>netsim</device>
+    <police>cirmode</police>
+  </tailfned>
+  <interface xmlns="urn:ios">
+    <Loopback>
+      <name>0</name>
+    </Loopback>
+    <FastEthernet>
+      <name>0/0</name>
+    </FastEthernet>
+    <FastEthernet>
+      <name>1/0</name>
+    </FastEthernet>
+    <FastEthernet>
+      <name>1/1</name>
+    </FastEthernet>
+  </interface>
+  <class-map xmlns="urn:ios">
+    <name>a</name>
+    <prematch>match-all</prematch>
+  </class-map>
+  <class-map xmlns="urn:ios">
+    <name>cmap1</name>
+    <prematch>match-all</prematch>
+    <match>
+      <mpls>
+        <experimental>
+          <topmost>1</topmost>
+        </experimental>
+      </mpls>
+      <packet>
+        <length>
+          <max>255</max>
+          <min>2</min>
+        </length>
+      </packet>
+      <qos-group>1</qos-group>
+    </match>
+  </class-map>
+  <policy-map xmlns="urn:ios">
+    <name>a</name>
+  </policy-map>
+  <policy-map xmlns="urn:ios">
+    <name>map1</name>
+    <class>
+      <name>c1</name>
+      <drop/>
+      <estimate>
+        <bandwidth>
+          <delay-one-in>
+            <doi>500</doi>
+            <milliseconds>100</milliseconds>
+          </delay-one-in>
+        </bandwidth>
+      </estimate>
+      <priority>
+        <percent>33</percent>
+      </priority>
+    </class>
+  </policy-map>
+  <spanning-tree xmlns="urn:ios">
+    <optimize>
+      <bpdu>
+        <transmission>false</transmission>
+      </bpdu>
+    </optimize>
+  </spanning-tree>
+  <ip xmlns="urn:ios">
+    <vrf>
+      <name>my-forward</name>
+      <bgp>
+        <next-hop>
+          <Loopback>1</Loopback>
+        </next-hop>
+      </bgp>
+    </vrf>
+    <community-list>
+      <number-standard>
+        <no>1</no>
+        <permit/>
+      </number-standard>
+      <number-standard>
+        <no>2</no>
+        <deny/>
+      </number-standard>
+      <standard>
+        <name>s</name>
+        <permit/>
+      </standard>
+    </community-list>
+    <http>
+      <server>false</server>
+      <secure-server>false</secure-server>
+    </http>
+    <routing>true</routing>
+    <source-route>true</source-route>
+  </ip>
+  <router xmlns="urn:ios">
+    <bgp>
+      <as-no>64512</as-no>
+      <aggregate-address>
+        <address>10.10.10.1</address>
+        <mask>255.255.255.251</mask>
+      </aggregate-address>
+    </bgp>
+  </router>
+</config>

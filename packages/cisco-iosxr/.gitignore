@@ -1,0 +1,10 @@
+/bin
+/.classpath
+/.project
+/lux_logs
+/ncs-cdb
+/README.ncs
+/README.netsim
+*~
+*.old
+*.new

@@ -1,0 +1,124 @@
+<clispec xmlns="http://tail-f.com/ns/clispec/1.0" style="c">
+
+  <operationalMode>
+    <modifications>
+      <move src="config" dest="configure" />
+      <copy src="show running-config"
+            dest="admin display-config" />
+    </modifications>
+
+    <!--
+    <cmd name="display-config" mount="admin">
+      <info></info>
+      <help></help>
+      <callback>
+        <exec>
+          <osCommand>./show_config.sh</osCommand>
+          <options>
+            <noInput/>
+          </options>
+        </exec>
+      </callback>
+    </cmd>
+    -->
+
+    <cmd name="version" mount="show">
+      <info>System hardware and software status</info>
+      <help>System hardware and software status</help>
+      <callback>
+        <exec>
+          <osCommand>./show_version.sh</osCommand>
+          <options>
+            <noInput/>
+            <pty>false</pty>
+          </options>
+        </exec>
+      </callback>
+    </cmd>
+
+    <cmd name="debug" mount="show">
+      <info>Debug configuration</info>
+      <help>System debug configuration</help>
+      <callback>
+        <exec>
+          <osCommand>./show_debug.sh</osCommand>
+          <options>
+            <noInput/>
+            <pty>false</pty>
+          </options>
+        </exec>
+      </callback>
+    </cmd>
+
+    <cmd name="length" mount="terminal">
+      <info>Set number of lines on a screen</info>
+      <help>Set number of lines on a screen</help>
+      <callback>
+        <exec>
+          <osCommand>maapi</osCommand>
+          <args>--cliset screen-length</args>
+          <options>
+            <noInput/>
+          </options>
+        </exec>
+      </callback>
+      <params>
+        <param>
+          <type>
+            <simpleType namespace="http://tail-f.com/ns/cli-builtin/1.0"
+                        name="screen-length" />
+          </type>
+        </param>
+      </params>
+    </cmd>
+
+    <cmd name="width" mount="terminal">
+      <!-- ignore terminal width, not needed with ConfD -->
+      <info>Set number of lines on a screen</info>
+      <help>Set number of lines on a screen</help>
+      <callback>
+        <exec>
+          <osCommand>/bin/echo</osCommand>
+          <options>
+            <noInput/>
+          </options>
+        </exec>
+      </callback>
+      <params>
+        <param>
+          <type>
+            <simpleType namespace="http://tail-f.com/ns/cli-builtin/1.0"
+                        name="screen-length" />
+          </type>
+        </param>
+      </params>
+    </cmd>
+
+    <cmd name="more" mount="environment no">
+      <info>Enable/disable pagination of output text</info>
+      <help>Enable/disable pagination of output text</help>
+      <callback>
+        <exec>
+          <osCommand>maapi</osCommand>
+          <args>--cliset paginate false</args>
+          <options>
+            <noInput/>
+          </options>
+        </exec>
+      </callback>
+    </cmd>
+
+  </operationalMode>
+
+
+  <configureMode>
+    <modifications>
+    </modifications>
+  </configureMode>
+
+  <pipeCmds>
+    <modifications>
+    </modifications>
+  </pipeCmds>
+
+</clispec>

@@ -1,0 +1,49 @@
+=== Using REST
+
+This section gives some examples pn how to use REST with the MPLS VPN example.
+It assumes that that the "volvo" VPN has been created according to the README.
+
+==== Reading data
+Get the top level resources:
+curl -u admin:admin  http://localhost:8080/api
+
+Get the VPNs:
+curl -u admin:admin  http://localhost:8080/api/running/vpn
+
+Get the Volvo VPN:
+curl -u admin:admin  http://localhost:8080/api/running/vpn/l3vpn/volvo
+curl -u admin:admin  http://localhost:8080/api/running/vpn/l3vpn/volvo\?deep
+
+Get with JSON encoding
+curl -H "Accept: application/vnd.yang.data+json" \
+       -u admin:admin  http://localhost:8080/api/running/vpn/l3vpn/volvo
+
+
+
+==== Delete VPN
+
+Save a VPN to file (deep to get complete service config)
+curl -u admin:admin  \
+  http://localhost:8080/api/running/vpn/l3vpn/volvo\?deep > volvo-vpn
+
+Delete it:
+curl -v -X DELETE -u admin:admin  http://localhost:8080/api/running/vpn/l3vpn/volvo
+
+==== Create a VPN
+
+Post the saved VPN
+curl -v -X POST -T volvo-vpn  \
+       -u admin:admin  http://localhost:8080/api/running/vpn
+
+==== Modify a VPN
+
+prepare a as-number.xml file with
+<as-number>
+   12345
+</as-number>
+
+Modify the as-number of the VPN
+curl -v -X PATCH -T as-number.xml  -u admin:admin  \
+       http://localhost:8080/api/running/vpn/l3vpn/volvo/as-number
+
+

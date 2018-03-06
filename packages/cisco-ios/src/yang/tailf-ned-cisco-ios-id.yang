@@ -1,0 +1,12 @@
+module tailf-ned-cisco-ios-id {
+  namespace "urn:ios-id";
+  prefix ios-id;
+
+  import tailf-ncs-ned {
+    prefix ned;
+  }
+
+  identity cisco-ios {
+    base ned:cli-ned-id;
+  }
+}

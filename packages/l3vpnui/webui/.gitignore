@@ -1,0 +1,16 @@
+#*
+config.js
+dependencies.json
+dialogs
+images
+init.js
+services
+styles.less
+templates
+tmp
+translations.js
+widgets.js
+widgets
+lib
+model.txt
+!/.gitignore

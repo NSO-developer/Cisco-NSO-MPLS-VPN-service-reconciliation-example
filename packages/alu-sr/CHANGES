@@ -1,0 +1,573 @@
+alu-sr v3.4 [June 11, 2015]
+============================
+
+Enhancements:
+Corrections:
+    - Make the NED calculate transid also when it is connected to a netsim
+      device.
+
+    - Changed most of the shutdown leafs in the YANG model.
+      Most of them are now modeled as booleans with default values.
+
+    - The NED is now using the new default value presentation feature
+      that was introduced in NCS version 3.3.2
+
+      (Issue tracker #17584)
+
+alu-sr v3.2.6 [May 29, 2015]
+============================
+
+Enhancements:
+    - Added a set-hooks at the locations below to mimic the behavior of the
+      device:
+       / router * / mpls
+       / qos / network-queue *
+
+    - Additions to
+       / qos / sap-ingress * / queue * / adaption-rule
+    Corrections:
+       Added tailf:dependency to // cflowd / cache-size / collector * /
+         template-set
+
+    - Additions to
+       / router * / bgp / group * / neighbor *
+
+       (Issue tracker #18896)
+
+    _ Additions to
+        / system / security / tacplus
+
+        (Issue tracker #18944)
+
+    - Additions to
+        / qos / fabric-profile
+        / card * / mda * / access / ingress / fabric-policy
+        / card * / mda * / network / ingress / fabric-policy
+
+        (Issue tracker #18917)
+
+    - Information about machine and os version of the device connected to
+      the NED is now available under / devices / device {} / platform
+
+    - Moved the proxy settings to / devices / device {} / ned-settings
+
+    - The NED can now be configured to pull objects into 'shutdown' state
+      before applying related config. See README for further info.
+
+      (Issue tracker #18727)
+
+    - Additions to
+       / router * / pim /
+	   / router * / pim / interface *
+       / filter / ipv6-filter * / entry * / match / next-header
+       / service / ies * / interface * / sap * / egress / filter
+       / service / ies * / interface * / sap * / ingress / filter
+
+      (Issue tracker #18619)
+
+    - Addition to
+       / service / vprn * / dhcp
+       / service / vprn * / ipsec
+
+
+    - Added "not shutdown" to the list of warnings / error messages that will
+      trigger an error in the NED.
+
+    - Additions in the yang model
+      / ip-address-range
+      / card * / mda * / network / ingress / pool
+      / cflowd /
+      / ipsec /
+      / isa /
+      / port * / ethernet / ingress-rate
+      / port * / modify-buffer-allocation-rate /
+      / port * / network /
+      / port * / tdm / ds1 * / clock-source
+      / port * / tdm / ds3 * / clock-source
+      / qos / sap-ingress * / prec
+      / qos / sap-ingress * / queue * / adaption-rule
+      / qos / sap-ingress * / default-priority
+      / qos / slope-policy * / description
+      / log / accounting-policy * /
+      / service / ies * / interface * / tos-marking-state
+      / service / vpls * / sap * / restrict-protected-src
+      / service / vpls * / bgp-vpls
+      / service / vprn * / dhcp
+      / service / vprn * / dhcp / local-dhcp-server *
+      / service / vprn * / ipsec
+      / service / vprn * / bgp / damping
+      / service / vprn * / interface * / sap * / collect-stats
+      / service / vprn * / interface * / sap * / ipsec-tunnel
+      / service / vprn * / spoke-sdp *
+      / service / vprn * / static-route * ipsec-tunnel
+      / service / vprn * / pim / rp / static / address *
+      / service / vprn * / mvpn / provider-tunnel / inclusive / pim
+      / service / pw-template * / use-provisioned-sdp
+      / router * / ospf3
+      / router * / mpls / resignal-timer
+      / router * / mpls / srlg-frr
+      / router * / policy-options
+      / router * / pim / rp / static / address *
+      / router * / pim / rp / bsr-candidate
+      / router * / pim / rp / rp-candidate
+      / test-oam /
+      / mirror / mirror-dest * type
+      / saa /
+
+      (Issue tracker #18377)
+
+Corrections:
+
+    - Changed the following to presence containers:
+       / service / vprn * / bgp / group * / remove-private
+       / service / vprn * / bgp / group * / neighbor * / remove-private
+       / router * / bgp / group * / remove-private
+       / router * / bgp / group * / neighbor * / remove-private
+       Changed to a leaf-list:
+       / router * / policy-options / begin / policy-statement* / entry * /
+         action / from / family
+       Fixed dependency issue in
+       / router * / interface * / port
+
+       (Issue tracker #17543)
+
+    -  Fixed YANG model bugs in
+       / system / security / source-address
+       / system / security / snmp
+
+       (Issue tracker #18944)
+
+    -  Fixed YANG model bugs in
+       / router * / policy-options / begin / policy-statement * / default-action
+       / router * / policy-options / begin / policy-statement * / entry * / action
+
+       (Issue tracker #18938)
+
+    - Use flat list syntax in / router * / bgp / group *
+
+      (Issue tracker #18937)
+
+    - Added a dependency on / service vpls * / sap * / multi-service-site
+
+      (Issue tracker #18729)
+
+    - Added more SAP dependencies.
+       A SAP entry is unique throughout the system. I.e a SAP id can only exist
+       once in either the vpls, ies, vprn or epipe lists.
+
+      (Issue tracker #18456)
+
+    - Additions in the YANG model:
+    	/ service / vpls * / interface
+
+      (Issue tracker #18397)
+
+    - Added missing cli-annotation in YANG model at
+      router * / static-route *
+
+      (Issue tracker #18204)
+
+    - Changed the following leafs to enumerations:
+     	/ port * / ethernet / mode
+     	/ port * / ethernet / encap-type
+    - Added dependency between:
+     	/ port * / ethernet / network
+     	 and
+        / port * / ethernet / mode
+        / router * / interface
+  	     and
+  	    / port * /
+    - Solved dependency issue between
+  	    / router * / ospf * / area * / interface
+  	     and
+  	    / router * / interface
+
+    - The following leafs are now non-strict leafrefs:
+     	/ port * / ethernet / network / queue-policy
+        / router * / interface * / qos
+
+     (Issue tracker #18227)
+
+
+alu-sr v3.2.4 [March 11, 2015]
+==============================
+
+Enhancements:
+    - Additions to the YANG model in:
+      / router * / ospf *
+
+      (Issue tracker #18006)
+
+    - Additions to the YANG model in:
+      / port * / ethernet
+      / qos / port-scheduler-policy
+      / qos / policer-control-policy
+      / service / ies * / interface * / egress
+
+      (Issue tracker #18041)
+
+
+Corrections:
+
+    - Changed to following leaf to a non-strict leafref since in
+      it can reference two different lists in / router * / mpls.
+      / router * / sdp * / lsp
+
+      (Issue tracker #18095)
+
+    - Changed the key for the / router * / ospf * list to be compliant with
+      the device. An ospf instance id is used instead of previously the ospf
+      router id.
+
+      (Issue tracker #18006)
+
+
+
+alu-sr v3.2.2 [February 23, 2015]
+=================================
+
+Enhancements:
+    - Additions to the YANG model in:
+      // service / vprn * / interface * / ipv6
+      // service / vprn * / router-id
+      // service / vprn * / isis *
+      // router * / pim /
+      // system / security / profile / entry *
+
+      (Issue tracker #17752)
+
+    - Additions to the YANG model in:
+      / service / vpls * / pim-snooping
+      / service / vpls * / spoke-sdp * split-horizon-group
+      / service / vprn * / bgp / authentication-key
+      / service / vprn * / bgp / group * /
+      / service / vprn * / interface * /
+      / sap  * / egress / qinq-mark-top-only
+      / card  * / network
+      / port * / ethernet / lldp
+      / port / ethernet / network
+      / qos / network-queue * / queue * / port-parent
+      / qos / sap-egress * / fc * / burst-limit
+      / qos / slope-policy *
+      / qos / port-scheduler-policy *
+      / eth-cfm / domain * / name
+      / log / file-id * / description
+      / log / log-id * / to
+      / log / syslog * / level
+      / service / vpls * / allow-ip-int-binding
+      / service / vpls * / service-name
+      / service / vpls * / bgp
+      / service / vpls * / bgp-ad
+      / service / vprn * / interface * / secondary
+      / service / vprn * / interface * / vpls *
+      / service / vprn * / static-route *
+      / service / vprn * / sgt-qos
+      / service / vprn * / pim
+      / service / vprn * / mvpn
+      / service / pw-template *
+      / router * / ospf / area * / interface
+      / router * / ospf
+      / router * / mpls / lsp-template *
+      / router * / ldp / interface-parameters
+      / router * / rsvp /   authentication-key
+      / router * / interface * / bfd
+      / router * / policy-options / as-path
+      / router * / pim
+      / system / chassis-mode * / power-supply *
+      / system / security
+      / filter / mac-filter * / entry *
+
+      (Issue tracker #17543)
+
+  - Added support for connecting to a ALU device through a proxy
+    or terminal server. See README for further info on how to
+    configure this.
+
+  - Added support for executing some native commands through
+    / live-status / exec
+
+Corrections:
+  - Minor fixes done at the following places:
+      / sap  * / egress / scheduler-policy
+      / port * / shutdown
+      / service / customer * / multi-service-site
+      / service / ies * / interface * / ipv6 dhcp6-relay / shutdown
+      / service / vpls * / sap * / egress
+      / service / vpls * / bgp-ad
+      / system /  time / sntp / shutdown
+      / router * / interface * / port
+
+
+  - Fixed order dependency between
+    / router * / router-advertisement and / service / ies *
+    / router * / mld and / service / ies *
+
+    (Issue tracker #17749)
+
+  - Fixed a delete issue with
+    / service / customer * / multi-site-service * / egress scheduler-policy
+
+    (Issue tracker #17290)
+
+  - Added appropriate leafref dependencies
+    towards:
+     / service / customer * / multi-service-site
+    for:
+     / service / vpls * / sap  * / multi-service-site
+     / service / epipe * / sap  * / multi-service-site
+     / service / ies * / sap  * / multi-service-site
+    Added appropriate trigger-on-set dependencies between:
+     / service / vpls * / sap * / multi-service-site
+    and
+     / service / vpls * / sap * / egress / scheduler-policy
+
+     (Issue tracker #17545)
+
+  - The standalone keyword 'urpf-check' as printed by the device when
+    dumping config is now  properly converted to 'urpf-check mode strict'.
+
+  - Changed the order of scheduler-policy and scheduler-override at the
+    following locations:
+    // service / customer * / multi-service-site * / ingress
+    // service / customer * / multi-service-site * / egress
+
+  - Removed create leaf from:
+    // router * / mld / interface *
+
+    (Issue tracker #17414)
+
+alu-sr v3.2.1 [November 28, 2014]
+==============================
+
+Enhancements:
+    - Support for NCS-3.3 added
+
+    - More info strings in YANG model
+
+    - Additions in:
+      / port / ethernet / hold-time
+      / port * / dwdm /
+      / port * / otu
+      / router *
+      / router * / isis * / level
+      / system / rollback
+      / system / time / ntp
+    - The method to use by the NED for calculating transaction ID is now a
+      configurable option.
+      The config option alu-sr-transaction-id-method is available under:
+
+      /ncs:devices/global-settings/ned-settings/
+      /ncs:devices/ncs:profiles/profile:alu-sr/ned-settings/
+      /ncs:/device/devices/device:<dev name>/ned-settings/
+
+      Two values are supported:
+      config-hash (default) : Use a snapshot of the running config for calculation.
+      rollback-timestamp    : Use the timestamp of the latest rollback for calculation.
+                              The system rollback feature must be enabled for this to work.
+
+    - The NED can now be configured to use the candidate feature on the ALU device.
+      This is a sort of transactional configuration functionality.
+      The config option alu-sr-transactional-config is available under:
+
+      /ncs:devices/global-settings/ned-settings
+      /ncs:devices/ncs:profiles/profile:alu-sr/ned-settings
+      /ncs:/device/devices/device:<dev name>/ned-settings
+
+      Two values are supported:
+      disabled (default)    : Config is applied the standard way, one-by-one
+      enabled               : Config is applied into a candidate, which
+                              then is committed.
+
+      (Issue tracker #17174)
+
+   - The NED is now configurable regarding the behaviour upon a
+     failure of the "admin save" command on the ALU device.
+     The config option "alu-sr-admin-save-failed-behaviour" is available under:
+
+     /ncs:devices/global-settings/ned-settings
+      /ncs:devices/ncs:profiles/profile:alu-sr/ned-settings
+     /ncs:/device/devices/device:<dev name>/ned-settings
+
+     Two values are supported:
+
+     abort-transaction            - abort the whole transaction if admin-save fails
+     commit-transaction (default) - commit the transaction even if admin-save fails
+     (Issue tracker #16124)
+
+
+Corrections:
+
+    - Added missing tailf:cli-add-mode in:
+      / port * / dwdm / coherent
+      / system / ethernet
+    - Added support for ipv6 in:
+      / service / vprn * / bgp / group * / neighbor *
+    - Fixed annotation issue with:
+      / service / customer * / multi-service-site * / ingress / rate
+      / service / customer * / multi-service-site * / egress / rate
+
+     (Issue tracker #17174)
+
+
+
+alu-sr v3.2 [Month November 18, 2014]
+==============================
+
+Enhancements:
+
+   - Adapted to new NCS requirement regarding support for
+     binding to a specific source ip address on the host.
+     (Issue tracker #12932)
+
+   - Added new functionality in:
+     / router / isis * /
+     / service / ies * / ipv6 / dhcp6-relay
+     / service / ies * / interface *
+     Added basic support for / log
+     Added support for / router * / bgp
+     Added support for / router * / router-advertisement
+     (Issue tracker #16529)
+
+   - The NED is now configurable regarding the behaviour upon a
+     failure of the "admin save" command on the ALU device.
+     The config option "admin-save-failed-behaviour" is available under:
+
+     /ncs:devices/global-settings/ned-settings
+     /ncs:/device/devices/alu:<dev name>/ned-settings
+
+     Two values are supported:
+
+     abort-transaction            - abort the whole transaction if admin-save fails
+     commit-transaction (default) - commit the transaction even if admin-save fails
+     (Issue tracker #16124)
+
+   - Allow NED to be used with ALU 7950 devices.
+     (Issue tracker #16818)
+
+   - Added support for / qos / queue-group-templates
+     (Issue tracker #16969)
+
+   - Added support for / service / vpls * / mesh-sdp * / ingress / qos
+     (Issue tracker #16969)
+
+Corrections:
+
+   - Changed / router * / isis. Is now a list.
+     Added missing annotation in / router * / interface * / port.
+     Added missing annotation in lag * / lacp.
+     Changed filter / ip-filter * / embed-filter to a non-strict-leafref";
+     (Issue tracker #16529)
+
+   - Fixed a delete issue with / service / customer * / multi-site-service * /ingress
+     scheduler-policy
+     (Issue tracker #17059)
+
+   - Compatibility changes related to the modified timeout API introduced in
+     NCS 3.2.1.3.
+     (Issue tracker #16808)
+
+   - YANG data model fixes
+     Fixed deletion order issue with / service / vpls * / def-mesh-vc
+     (Issue tracker #16814)
+
+
+
+alu-sr v3.1 [September 17, 2014]
+================================
+
+Enhancements:
+   -  Added proper persist hook
+      (Issue tracker: #15596)
+
+   -  Added the keyword 'missing' and 'not allowed' to the
+      list of bail-out error messages.
+
+   -  Added support for ALU 7210 device
+
+   -  YANG data model updates
+       service / vpls *
+       router * / l2tp
+       router * / ldp
+       router * / mpls
+       router * / ospf
+       filter / ip-filter *
+       filter / ipv6-filter *
+      (Issue tracker: #11231, #15605)
+
+   -  YANG data model updates
+       debug / mirror-source *
+       mirror / mirror-destination *
+      (Issue tracker: #11303)
+
+   -  YANG data model updates
+       qos / sap-egress *
+       qos / sap-ingress *
+       service / ies * / interface *
+      (Issue tracker: #15302)
+
+   -  YANG data model updates
+       service / vprn *
+       router * / policy-options
+
+   -  YANG data model updates
+       system / security / cpm-filter *
+
+   -  YANG data model updates
+       filter / ip-filter * / embed-filter
+       (Issue tracker: #16223)
+
+Corrections:
+   - YANG data model fixes
+      Changed / filter / ip(v6)-filter / embed-filter to non-strict-leafrefs
+      (Issue tracker #16530)
+
+   - YANG data model fixes
+      Using new version of tailf:cli-diff-dependency extension
+      solve order of creation/deletion of SAP objects in different
+      subtrees.
+      Added dependency rules between qos / sap-egress and
+      qos / scheduler-policy.
+      (Issue tracker: #15942)
+
+   - Fixed check-sync issue related to the trans-id hook.
+      Now implemented using a md5 hash of running config.
+
+   - YANG data model fixes
+      Using tailf:ipv4-address-and-prefix-length and
+      tailf:ipv6-address-and-prefix-length instead of ipv6-prefix
+      and ipv4-prefix.
+      (Issue tracker: #15202)
+
+   - YANG data model fixes
+      Many config leafs now tagged with "tailf:cli-no-value-on-delete"
+      (Issue tracker: #15522, #15942)
+
+This NED does require NCS version 3.2.1.2 or later.
+
+
+alu-sr v3.0.1 [March 20, 2014]
+==============================
+
+Corrections:
+
+  - The previous released was based on software from the main NCS
+    development branch. This was wrong. The alu-sr NED had been
+    maintained on the NCS Confd-5.0 branch. This release  contains
+    the accurate version as picked from the Confd-5.0 branch.
+
+
+alu-sr v3.0 [March 11, 2014]
+============================
+
+This release is function wise equivalent to the previous release, which was 1.0.
+The only difference is that this NED now is maintained using
+a new product life-cycle which is independent of the NCS release life-cycle.
+
+The version number 3.0 has been chosen to indicate a common baseline for
+all NEDs, which is higher than any previous NED version.
+
+For this NED no upgrades are necessary.
+
+
+===============================================================================
+The Tail-f package: alu-sr NED was initially imported 2014-02-25

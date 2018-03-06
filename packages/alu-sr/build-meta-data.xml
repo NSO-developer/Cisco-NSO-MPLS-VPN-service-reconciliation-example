@@ -1,0 +1,22 @@
+<ncs-pkg-build xmlns='http://tail-f.com/ns/ncs-pkg-build'>
+    <date>2015-06-11 14:59:03</date>
+    <file>ncs-3.4-alu-sr-3.4_4494a0e.tar.gz</file>
+    <type>release</type>
+    <arch>darwin.x86_64</arch>
+    <java>compiled Java class data, version 51.0</java>
+    <package>
+        <name>alu-sr</name>
+        <version>3.4_4494a0e</version>
+        <ref>origin/develop</ref>
+        <sha1>4494a0e</sha1>
+    </package>
+    <ncs>
+        <version>3.4</version>
+        <sha1></sha1>
+    </ncs>
+    <dev-support>
+        <version>1.0</version>
+        <branch>develop</branch>
+        <sha1>929222a</sha1>
+    </dev-support>
+</ncs-pkg-build>

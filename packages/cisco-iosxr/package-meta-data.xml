@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<ncs-package xmlns="http://tail-f.com/ns/ncs-packages">
+  <name>cisco-iosxr</name>
+  <package-version>3.5.0.7</package-version>
+  <description>NED package for Cisco IOS XR</description>
+  <ncs-min-version>3.2.2</ncs-min-version>
+  <ncs-min-version>3.3</ncs-min-version>
+  <component>
+    <name>cisco-ios-xr</name>
+    <ned>
+      <cli>
+        <ned-id xmlns:cisco-ios-xr-id="http://tail-f.com/ned/cisco-ios-xr-id">cisco-ios-xr-id:cisco-ios-xr</ned-id>
+        <java-class-name>com.tailf.packages.ned.iosxr.IosxrNedCli</java-class-name>
+      </cli>
+      <device>
+        <vendor>Cisco</vendor>
+      </device>
+      <option>
+        <name>show-tag</name>
+        <value>interface</value>
+      </option>
+    </ned>
+  </component>
+</ncs-package>

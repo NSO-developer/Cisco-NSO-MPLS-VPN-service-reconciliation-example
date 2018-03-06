@@ -1,0 +1,65 @@
+module l3vpnui {
+
+  namespace "http://com/example/l3vpnui";
+  prefix l3vpnui;
+
+  import tailf-common {
+    prefix tailf;
+  }
+
+  import tailf-ncs {
+    prefix ncs;
+  }
+
+  import tailf-webui {
+    prefix webui;
+  }
+
+
+  typedef static-map-coordinate {
+    description "Normalized relative coordinate";
+
+    type decimal64 {
+      fraction-digits 18;
+      range "0 .. 1";
+    }
+  }
+
+  grouping static-map-coordinates {
+    container coord {
+      leaf x {
+        type static-map-coordinate;
+      }
+
+      leaf y {
+        type static-map-coordinate;
+      }
+    }
+  }
+
+  augment "/webui:webui/webui:data-stores"  {
+
+    container static-map {
+
+      tailf:info "Static map device information";
+
+      list device {
+        key name;
+
+        leaf name {
+          type leafref {
+            path /ncs:devices/ncs:device/ncs:name;
+          }
+        }
+
+        uses static-map-coordinates;
+      }
+    }
+
+  }
+
+}
+
+
+
+

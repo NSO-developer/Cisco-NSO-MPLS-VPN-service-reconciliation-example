@@ -1,0 +1,119 @@
+cisco-iosxr v3.4.0 [November 26, 2014]
+========================================
+
+Enhancements:
+   -  The method to use by the NED for calculating transaction ID is now a
+      configurable option.
+      The config option cisco-iosxr-transaction-id-method is available under:
+
+      /ncs:devices/global-settings/ned-settings/
+      /ncs:devices/ncs:profiles/profile:cisco-iosxr/ned-settings/
+      /ncs:/device/devices/device:<dev name>/ned-settings/
+
+      Two values are supported:
+      config-hash (default) : Use a snapshot of the running config for
+                              calculation.
+      commit-list :           Use the configuration commit list time of
+                              the latest commit for calculation.
+
+   -  Implemented support for 'crypto key' exec commands under live-status,
+        e.g.: devices device asr9k live-status exec crypto key generate rsa
+
+   -  Expanded router ospf, router pim, router igmp and router static.
+      (Issue tracker: #17163)
+
+   -  Implemented basic support for router ospfv3.
+      (Issue tracker: #17163)
+
+   -  YANG data model updates: class-map / match vlan
+
+   -  YANG data model updates: l2vpn
+
+   -  Numerous YANG model expansions in various areas.
+      (Issue tracker: #17163)
+
+Corrections:
+   -  Fixed two problem with class-map / match dscp, ordering and ipv4/ipv6.
+
+This NED does require NCS version 3.1.3 or later.
+
+
+cisco-iosxr v3.2.0 [October 16, 2014]
+=====================================
+
+Enhancements:
+   -  Added version string in NED trace. Grep for 'NED VERSION:'
+
+   -  Added support for show commands under live-status exec show, e.g.
+      devices device asr9k live-status exec show running-config.
+      (Issue tracker: #16334)
+
+   -  Added transaction ID's unique string, restoring check-sync.
+      (Issue tracker: #15945)
+
+   -  YANG data model updates
+       interface * / ip address * secondary
+      (Issue tracker: #16062)
+
+   -  YANG data model updates
+       snmp-server / user *
+
+   -  YANG data model interface updates
+       interface tunnel-te * / path-option
+       interface * / transport-mode
+
+   -  YANG data routing router model updates
+       router bgp
+       router isis
+       router ospf
+       router pim
+
+   -  YANG data routing model updates
+       l2vpn / bridge group * / bridge-domain *
+
+   -  YANG data routing model updates
+       rsvp
+      (Issue tracker: #16052)
+
+   -  YANG data routing model updates
+       l2vpn / xconnect / mp2mp / autodiscovery / bgp / rd
+      (Issue tracker: #16011)
+
+   -  YANG data routing model updates
+       mpls
+       l2vpn
+
+   -  Changed from NedCliBase to NedCliBaseTemplate in Java implementation
+      for southbound address binding and public key auth support.
+
+Corrections:
+   -  YANG route-policy contents to single quoted string, e.g.:
+      route-policy
+        "if (xxx) then \r\n statement(s) \r\n endif\r\n"
+      end-policy
+      !
+      (Issue tracker #16500)
+
+This NED does require NCS version 3.0.1 or later.
+
+
+cisco-iosxr v3.0 [March 4, 2014]
+================================
+
+This release is function wise equivalent to the previous release, which was 1.7.
+The only difference is that this NED now is maintained using
+a new product life-cycle which is independent of the NCS release life-cycle.
+
+The version number 3.0 has been chosen to indicate a common baseline for
+all NEDs, which is higher than any previous NED version.
+
+Non-backwards compatible corrections:
+
+  - This NED was formerly named "cisco-ios-xr". It has now been renamed to
+    "cisco-iosxr" according to the new naming convention.
+    When replacing older cisco-ios-xr NED with this version the old directory
+    needs to be removed. Existing CDB data is not affected by this change.
+
+
+===============================================================================
+The Tail-f package: cisco-iosxr NED was initially imported 2014-02-25

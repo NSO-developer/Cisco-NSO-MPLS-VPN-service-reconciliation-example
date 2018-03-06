@@ -1,0 +1,47 @@
+module tailf-ned-cisco-ios-xr-meta {
+  namespace 'http://tail-f.com/ned/cisco-iosxr/meta';
+  prefix cisco-ios-xr-meta;
+
+  import tailf-common {
+    prefix tailf;
+  }
+
+  import tailf-ncs {
+    prefix ncs;
+  }
+
+  //import ietf-inet-types {
+  //prefix inet;
+  //  }
+
+   grouping trans-id-method-grouping {
+    leaf cisco-iosxr-transaction-id-method {
+      tailf:info "Method of the cisco-iosxr NED to use for calculating "
+                +"a transaction id. Typically used for check-sync operations";
+      type enumeration {
+        enum config-hash {
+          tailf:info "Use a snapshot of the running config for calculation.";
+        }
+        enum commit-list {
+          tailf:info "Use the configuration commit list time of the latest "+
+            "for calculation.";
+        }
+      }
+    }
+  }
+
+
+  augment "/ncs:devices/ncs:global-settings/ncs:ned-settings" {
+    uses trans-id-method-grouping;
+  }
+
+  augment "/ncs:devices/ncs:profiles/ncs:profile/ncs:ned-settings" {
+    uses trans-id-method-grouping;
+  }
+
+  augment "/ncs:devices/ncs:device/ncs:ned-settings" {
+    when "../ncs:device-type/ncs:cli/ncs:ned-id = 'cisco-ios-xr-id:cisco-ios-xr'";
+    uses trans-id-method-grouping;
+  }
+
+}

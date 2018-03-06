@@ -1,0 +1,228 @@
+1. Introduction
+---------------
+
+   This document describes the NED for Alcatel Lucent 7750 service
+   router. Some other ALU devices are supported as well, including
+   7950, 7450, 7705 and 7210.
+
+
+2. Getting started
+------------------
+
+   Set up the environment in $DIR, change DIR to something suitable
+
+   > tar xvzf ned-alu-sr.tgz
+   > mv ned-alu-sr $NCS_DIR/packages/neds/
+   > export DIR=/tmp/ncs-alu-sr
+   > ncs-setup --ned-package $NCS_DIR/packages/neds/alu-sr --dest $DIR
+   > cd $DIR
+
+   Start ncs:
+
+   > ncs
+
+   Start NCS CLI:
+
+   > ncs_cli -C -u admin
+
+   In the NCS CLI configure the device. Enter configuration mode:
+
+   # configure
+
+   Set the required configurables, address, remote user data including
+   remote secondary password, if needed:
+
+   # devices device alu0 address <device address>
+   # devices device alu0 port <typically 22 or 23>
+   # devices device alu0 device-type cli ned-id alu-sr
+   # devices device alu0 device-type cli protocol <telnet or ssh>
+   # devices device alu0 state admin-state unlocked
+
+   # devices authgroups group alugroup umap admin remote-name <login username>
+   # devices authgroups group alugroup umap admin remote-password <login password>
+   # devices device alu0 authgroup alugroup
+
+   In case the connection is of type ssh:
+   # devices device alu0 ssh fetch-host-keys
+   # commit
+
+   Exit configure mode:
+   # exit
+
+   Try to connect to the device:
+   # devices device alu0 connect
+
+   Read the configuration from the device:
+   # devices device alu0 sync-from
+
+   Look at the configuration:
+   # show running-config devices device alu0
+
+3. When connecting through a proxy or terminal server
+------------------------------------------------------
+
+   Do as follows to setup to connect to an ALU device that resides
+   behind a proxy or terminal server:
+
+   +-----+  A   +-------+   B  +-----+
+   | NCS | <--> | proxy | <--> | ALU |
+   +-----+      +-------+      +-----+
+
+   Setup connection (A):
+
+   # devices device alu0 address <proxy address>
+   # devices device alu0 port <proxy port>
+   # devices device alu0 device-type cli protocol <proxy proto - telnet or ssh>
+   # devices authgroups group alugroup umap admin remote-name <proxy username>
+   # devices authgroups group alugroup umap admin remote-password <proxy password>
+   # devices device alu0 authgroup alugroup
+
+   Setup connection (B):
+
+   Define the type of connection to the device. The type 'serial' is
+   used for terminal servers:
+
+   # devices device alu0 ned-settings alu-sr-proxy-settings remote-connection <ssh|telnet|serial>
+
+   Define login credentials for the device:
+
+   # devices device alu0 ned-settings alu-sr-proxy-settings remote-user <user name on the ALU device>
+   # devices device alu0 ned-settings alu-sr-proxy-settings remote-password <password on the ALU device>
+
+   If remote-connection is ssh or telnet then configure the following as well:
+
+   # devices device alu0 ned-settings alu-sr-proxy-settings proxy-prompt <prompt pattern on proxy>
+   # devices device alu0 ned-settings alu-sr-proxy-settings remote-address <address to the ALU device>
+   # devices device alu0 ned-settings alu-sr-proxy-settings remote-port <port used on the ALU device>
+   # commit
+
+4. Other NED specific settings
+------------------------------
+    Configure whether the NED shall pull objects to 'shutdown' state before
+    applying the config. Some config on the ALU-SR device can only be altered
+    if the config object is in 'shutdown state. The NED can be configured to do
+    this automatically using the alu-sr-do-shutdown-before-apply-config option.
+    Two values are supported:
+
+      enabled                      :  Automatically do 'shutdown' on objects
+                                      before altering their config. Restore
+                                      the state afterwards.
+      disabled                     :  Normal operation (default). The user is
+                                      responsible for toggling the 'shutdown'
+                                      state.
+
+    # devices device alu0 ned-settings alu-sr-do-shutdown-before-apply-config enabled
+    # commit
+
+
+    Configure how the NED shall react if the device fails to save a
+    committed configuration to persistent memory. Two values are
+    supported:
+
+      abort-transaction            : abort the whole transaction if save fails
+      commit-transaction (default) : commit the transaction even if save fails
+
+    # devices device alu0 ned-settings alu-sr-admin-save-failed-behaviour abort-transaction
+    # commit
+
+
+    Configure how the NED shall calculate the transaction ID (used by
+    NCS when verifying that it is in sync with the device). Two values
+    are supported:
+
+      config-hash (default) : Use a snapshot of the running config for calculation.
+                              This does not require any special setup on the device.
+                              Can be slow for huge configs though.
+
+      rollback-timestamp    : Use the timestamp of the latest rollback for calculation.
+                              The system rollback feature must be enabled on the device
+                              for this to work.
+
+    # devices device alu0 ned-settings alu-sr-transaction-id-method rollback-timestamp
+    # commit
+
+
+    Configure the NED to use the candidate feature on the ALU device. This is a sort of
+    transactional configuration functionality. The support for this in the NED is still
+    experimental. Two values are supported:
+
+      disabled (default)    : Config is applied the standard way, one-by-one
+      enabled               : Config is applied into a candidate, which then is committed.
+
+    # devices device alu0 ned-settings alu-sr-transactional-config enabled
+    # commit
+
+
+    All the NED specific settings are also configurable globally and per device profile.
+    For example:
+
+    # devices global-settings ned-settings alu-sr-transactional-config enabled
+    # commit
+
+5. Optional debug and trace configurables
+-----------------------------------------
+
+    Make the NED dump all NXAPI or CLI messages sent to/from the Cisco Alugroup device
+
+    # devices global-settings trace raw
+    # commit
+
+    Make the NED print debug log messages
+
+    # java-vm java-logging logger com.tailf.packages.ned.alugroup level level-debug
+    # commit
+
+6. Sample Device Configuration
+------------------------------
+
+    For instance, create a new customer:
+
+    # configure
+    # devices device alu0 config
+    # service
+    # customer 1111
+    # description "This is a test customer"
+    # commit
+
+    Verify that NCS is in-sync with the device
+
+    Alternative 1
+    # check-sync
+
+    Alternative 2
+    # compare-config
+
+7. Show Device Statistics etc
+-----------------------------
+
+   Some of the settings and configurations from the Alcatel Lucent
+   devices can be extracted directly through the NED.
+
+   The following native ALU methods are available directly in the NCS
+   CLI under the live-settings sub menu:
+
+     - admin   Execute admin commands
+     - debug   Execute debug commands
+     - ping    Send echo messages
+     - show    Execute show commands
+
+   For example, to display the boot settings of the ALU device:
+
+   # devices device alu0 live-settings exec show bof
+   result
+   ===============================================================================
+   BOF (Memory)
+   ===============================================================================
+       primary-image    cf3:\TiMOS-10.0.R4
+       primary-config   cf3:\config.cfg
+       address          10.1.198.100/25 active
+       static-route     10.0.0.0/8 next-hop 10.1.198.1
+       autonegotiate
+       duplex           full
+       speed            100
+       wait             3
+       persist          off
+       no li-local-save
+       no li-separate
+       console-speed    115200
+   ===============================================================================

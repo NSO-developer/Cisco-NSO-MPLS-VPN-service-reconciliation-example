@@ -1,0 +1,20 @@
+
+This is a netsim project directory. The directory has been generated
+through the invocation of
+
+/home/andrei/work/svn-work/confd-5.0/bin/ncs-netsim create-network /home/andrei/work/alu-sr/ 1 alu
+
+This netsim project manages a set of emulated devices. Each device
+is emulated by ConfD. The devices are:
+
+ncs-netsim list for  /home/andrei/work/alu-sr/netsim
+
+name=alu0 netconf=12022 snmp=11022 ipc=5010 dir=/home/andrei/work/alu-sr/netsim/alu/alu0 
+
+Run ncs-netsim help for available commands to control this
+emulated network
+
+There exists directories for each device below here, the logs
+as well as start/stop/cli/status scripts for each device reside in
+each corresponding directory
+

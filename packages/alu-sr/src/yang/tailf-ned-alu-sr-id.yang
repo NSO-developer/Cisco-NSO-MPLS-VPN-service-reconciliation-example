@@ -1,0 +1,12 @@
+module tailf-ned-alu-sr-id {
+  namespace 'http://tail-f.com/ned/alu-sr-id';
+  prefix alu-sr-id;
+
+  import tailf-ncs-ned {
+    prefix ned;
+  }
+
+  identity alu-sr {
+    base ned:cli-ned-id;
+  }
+}

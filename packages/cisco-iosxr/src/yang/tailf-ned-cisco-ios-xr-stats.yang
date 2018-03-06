@@ -1,0 +1,177 @@
+module tailf-ned-cisco-ios-xr-stats {
+  namespace 'http://tail-f.com/ned/cisco-ios-xr-stats';
+  prefix cisco-ios-xr-stats;
+
+  import tailf-common {
+    prefix tailf;
+  }
+
+
+  /// ========================================================================
+  /// exec
+  /// ========================================================================
+
+  container exec {
+    tailf:info "Execute commands on device";
+
+    // show [arg 1] .. [arg N]
+    tailf:action show {
+      tailf:info "Execute show commands";
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+        leaf-list args {
+          tailf:cli-drop-node-name;
+          tailf:cli-flat-list-syntax;
+          type string {
+            tailf:info "show argument(s)";
+          }
+        }
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+
+    // clear [arg 1] .. [arg N]
+    tailf:action clear {
+      tailf:info "Reset functions";
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+        leaf-list args {
+          tailf:cli-drop-node-name;
+          tailf:cli-flat-list-syntax;
+          type string {
+            tailf:info "clear argument(s)";
+          }
+        }
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+
+    // ping [arg 1] .. [arg N]
+    tailf:action ping {
+      tailf:info "Send echo messages";
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+        leaf-list args {
+          tailf:cli-drop-node-name;
+          tailf:cli-flat-list-syntax;
+          type string {
+            tailf:info "ping argument(s)";
+          }
+        }
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+
+    // copy [arg 1] .. [arg N]
+    tailf:action copy {
+      tailf:info "Copy from one file to another";
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+        leaf-list args {
+          tailf:cli-drop-node-name;
+          tailf:cli-flat-list-syntax;
+          type string {
+            tailf:info "copy argument(s)";
+          }
+        }
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+
+    // reload [arg 1] .. [arg N]
+    tailf:action reload {
+      tailf:info "Halt and perform a cold restart";
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+        leaf-list args {
+          tailf:cli-drop-node-name;
+          tailf:cli-flat-list-syntax;
+          type string {
+            tailf:info "reload argument(s)";
+          }
+        }
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+
+    // traceroute [arg 1] .. [arg N]
+    tailf:action traceroute {
+      tailf:info "Trace route to destination";
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+        leaf-list args {
+          tailf:cli-drop-node-name;
+          tailf:cli-flat-list-syntax;
+          type string {
+            tailf:info "traceroute argument(s)";
+          }
+        }
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+
+    // crypto key
+    tailf:action "crypto" {
+      tailf:info "Encryption module";
+      tailf:actionpoint ncsinternal {
+        tailf:internal;
+      }
+      input {
+        leaf-list "key" {
+          tailf:info "Long term key operations";
+          tailf:cli-flat-list-syntax;
+          type string {
+            tailf:info "crypto key argument(s)";
+          }
+        }
+      }
+      output {
+        leaf result {
+          type string;
+        }
+      }
+    }
+
+  }
+}
+
+
+/// ========================================================================
+//                          EOF
+/// ========================================================================

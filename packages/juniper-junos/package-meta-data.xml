@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<ncs-package xmlns="http://tail-f.com/ns/ncs-packages">
+  <name>juniper-junos</name>
+  <package-version>3.0.11</package-version>
+  <description>NED package for all JunOS based Juniper routers</description>
+  <ncs-min-version>3.0.0.1</ncs-min-version>
+  <ncs-min-version>3.1</ncs-min-version>
+  <ncs-min-version>3.2</ncs-min-version>
+  <ncs-min-version>3.3</ncs-min-version>
+  <component>
+    <name>junos</name>
+    <ned>
+      <netconf/>
+      <device>
+        <vendor>Juniper</vendor>
+      </device>
+    </ned>
+  </component>
+</ncs-package>

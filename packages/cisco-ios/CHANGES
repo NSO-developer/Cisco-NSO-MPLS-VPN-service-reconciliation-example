@@ -1,0 +1,462 @@
+cisco-ios v3.8.0 [March 16, 2015]
+=================================
+
+Enhancements:
+
+  - Support for NCS-3.4.
+
+  - Additions to the YANG model:
+     csdb tcp|udp|icmp|session
+     snmp-server queue-limit notification-host
+    (#12674 / RT18132)
+
+  - Additions to the YANG model:
+     router bgp * / bgp additional-paths
+     interface pseudowire * / service-policy
+    (#12675 / RT17994)
+
+  - Additions to the YANG model:
+     interface * / xconnect encapsulation / mtu
+    (#12676 / RT18079)
+
+  - Additions to the YANG model:
+     interface * / switchport private-vlan
+    (#12679 / RT18009)
+
+  - Additions to the YANG model:
+     interface * / wrr-queue dscp-map *
+     interface * / priority-queue dscp-map *
+     interface * / priority-queue queue-limit
+    (#12681 / RT18170)
+
+  - Additions to the YANG model:
+     interface * / l2protocol-tunnel lldp
+     interface * / l2protocol point-to-point
+    (RT18073)
+
+  - Added interface BRI and Async basic configuration.
+
+  - Populated router bgp * / peer-policy & peer-session lists.
+
+  - Expanded policy-map class random-detect config.
+
+  - Merged cloudvpn-develop (commit: 13d3dc9 from 2015-03-05):
+    Enhancements:
+     Added license command under live-status, e.g.:
+      devices device csr1000v live-status exec license smart deregister
+     Implemented support for 'default' exec commands in config mode, e.g.:
+      devname(config) default crypto ikev2 authorization policy
+     Additions to the YANG model:
+      aaa attribute list *
+      class-map * / match protocal attribute category *
+      crypto dynamic-map *
+      crypto ikev2 profile * / aaa authorization group
+      crypto ikev2 authorization policy *
+      crypto ikev2 keyring * / peer * / identity
+      crypto ikev2 profile * / nat keepalive
+      crypto ikev2 profile * / match fvrf
+      crypto isakmp nat
+      crypto isakmp profile *
+      crypto keyring *
+      crypto map * ipsec-isakmp|ipsec-manual
+      crypto logging ikev2
+      ip dhcp pool * / vrf
+      ip nat inside source route-map *
+      ip sla * / * / vrf
+      ip ssh stricthostkeycheck
+      logging source-interface * vrf
+      pnp startup-vlan
+      pnp tag
+      .. and more minor additions ..
+    Corrections:
+     Remove ip sla entry before modifying it upon error from device.
+     Modifications in the YANG model:
+      aaa accounting exec *
+      crypto ikev2 profile * / authentication
+      crypto isakmp policy * / encryption
+      crypto map *
+      interface * / ipv6 nd ra suppress
+      interface * / ntp multicast client
+      ip nat outside source
+      pnp profile * / transport
+      .. and more minor various bugfixes ..
+
+Corrections:
+
+  - Numerous router rip,ospf,ospfv3,isis and bgp bug fixes.
+
+  - Fixed dependency issues:
+    On Catalyst devices there is a dependency between:
+     interface * / switchport and interface * / l2protocol-tunnel.
+    The config under l2protocol-tunnel must always be deleted before
+     switchport is deleted.
+    The same dependency also applies to
+     interface * / switchport and interface * / service.
+    (RT18073)
+
+  - Removed all specific snmp-server enable traps. Replaced by generic list.
+
+  - Changed router * / passive-interface from a leaf to a list.
+    Fixed deletion of 'no passive-interface' on router config.
+    (#12683)
+
+  - Fixed order dependancy between service instance and ethernet evc.
+    (#12686 / RT18200)
+
+This NED does require NCS version 3.2.2 or later.
+
+
+cisco-ios v3.6.0 [February 13, 2015]
+====================================
+
+Enhancements:
+
+  - Implemented cable config support for 10000 Software.
+    (#12353 / RT17563)
+
+  - Added support for sub-interface Port-channel #.#
+
+  - Automatically delete channel-group and shutdown dependant ethernet
+    interfaces when Port-channel interface is deleted.
+    (#12304 / RT17422)
+
+  - General config expansion for improved MPLS and L2VPN support.
+
+  - Expanded router lisp config.
+    (#12432 / RT17707)
+
+  - Improved expect of sent commands at login, solving login problems
+    on XE devices.
+    (#12482 / RT17798)
+
+  - Expanded ethernet cfm config.
+
+  - Added aaa accounting update periodic config.
+    (#12484 / RT17825)
+
+  - Added interface ip ospf authentication config.
+    (#12483 / R17835)
+
+  - Added numerous ASR903/ASR920 L2 config.
+    (#12481 / RT17687)
+
+  - Added ip tcp mss config.
+    (#12480 / RT17774)
+
+  - Added copy, reload and traceroute commands under live-status.
+    (#12479 / RT17836)
+
+  - Support for vlan ranges in service instance encapsulation dot1q config.
+    (#12430 / RT17629)
+
+  - Added generic snmp-server enable traps list accepting all entries.
+
+
+Corrections:
+
+  - Reworked aaa authentication and authorization lists method options.
+    Non-backwards compatible 'aaa authorization network' model.
+    (#12353 / RT17164)
+
+  - Fixed bug in router ospf * / redistribute bgp|eigrp config.
+
+  - Fixed bug with setting banners. Removed delimiter config to avoid
+    compare config diff.
+    (#12300)
+
+  - Fixed ordering problem when deleting switchport mode trunk and
+    switchport trunk encapsulation dot1q.
+    (#12312)
+
+  - Do not delete switchport container when member leaves are deleted.
+
+  - Made index value mandatory in ip explicit-path in order to modify and
+    delete entries.
+    (#12341)
+
+  - Restored router bgp / address family ipv6 configuration mode.
+
+  - Remodelled ethernet cfm service evc to list.
+
+  - Removed auto-create of vlan when configuring bridge-domain.
+    Fixed order dependancy problem with service-policy.
+    (#12506 / RT17782)
+
+  - Do not delete config in set-hook's if talking Netconf.
+    (#12525)
+
+This NED does require NCS version 3.2.2 or later.
+
+
+cisco-ios v3.4.0 [December 1, 2014]
+===================================
+
+Enhancements:
+
+  - Support for NCS-3.3.
+
+  - Added ping and clear exec commands under live-status, e.g.:
+     devices device c7200 live-status exec ping 192.168.1.1
+     devices device c7200 live-status exec clear ppp queues
+
+  - YANG data model updates
+     mls qos map ip-prec-dscp
+
+    (RT17250)
+
+  - Added basic support for new L2VPN config, YANG data model updates
+     interface pseudowire
+     l2vpn xconnect context
+
+    (#12180 / RT17250)
+
+  - Added route-map / continue configuration.
+
+  - Updated for new NCS features 'trim-defaults' which hides config set
+    to default values.
+
+    (#12181)
+
+Corrections:
+
+  - Fixed problem with route-map * / set community reordering values.
+
+    (#12140)
+
+  - Remove ip prefix sequence entry before modifying it.
+
+  - Fixed problem with deleting ip vrf *, bad prefix used.
+
+    (#12150)
+
+  - Ignore incomplete crypto profile warning.
+
+
+This NED does require NCS version 3.2.2 or later.
+
+
+cisco-ios v3.2.0 [November 5, 2014]
+=====================================
+
+Enhancements:
+
+  -  Added version string in NED trace. Grep for 'NED VERSION:'
+
+  -  Added support for show commands under live-status exec show, e.g.
+     devices device 7200 live-status exec show running-config.
+
+  -  Added ncs java log and ned trace print of TransactionId.
+
+  -  Added 'tailfned police' options: cirmode|cirflat|bpsflat|numflat
+     in order to support various versions of policy-map / class /
+     police config styles. This config disables non used versions
+     of police config.
+
+  -  Added support for c3750 policy-map / class / police config syntax.
+
+  -  Added support for match config in router bgp redistribute ospf list.
+     (Issue tracker: #15339)
+
+  -  Added support for PPP/Ethernet/Frame Relay Bundled Service and
+     Ethernet MPLS L2VPN.
+     (Issue tracker: #15601)
+
+  -  Implemented basic crypto ikev2 config support.
+
+  -  Implemented support for 'crypto pki server <cs-lbl> [rollover [cancel]]
+     exec commands in config mode.
+
+  -  Implemented full support for NTP configuration, modified/expanded:
+     ntp and interface / ntp commands.
+
+  -  Implemented full support for SNTP configuration, implemented:
+     sntp command.
+
+  -  Implemented full support for DNS configuration, modified/expanded:
+     ip host, ip name-server and ip domain commands.
+
+  -  Added crypto ssl support and crypto pki enroll <name> command.
+     (Issue tracker: #16986)
+
+  -  Added support for policy-map / class / random-detect dscp[-based].
+     (Issue tracker: #16914)
+
+  -  Added 'backup peer' and 'synchronous mode' interface config.
+     Reworked xconnect in interface and interface service instance.
+     Added bridge-domain hook for auto creating vlans with same <id>.
+     Added connect config.p
+     (Issue tracker: #16792)
+
+  -  Implemented support for 'crypto key' exec commands in config mode.
+     Added basic crypto isakmp and crypto ipsec support.
+     Expanded mobile ip and dialer config.
+     (Issue tracker: #16556)
+
+  -  Added crypto pki trustpoint create&remove hook for automatic creation
+     and removal of corresponding pki certificate chain.
+
+  -  Added remove hooks on /ip/vrf and /vrf/definition lists to automatically
+     delete routes on same vrf.
+
+  -  Implemented basic VoIP config support.
+
+  -  YANG data model updates
+      ip mobile router
+      controller Cellular
+     (Issue tracker: #16556)
+
+  -  YANG data model updates
+      mls qos srr-queue
+
+  -  YANG data model updates
+      ip dhcp pool
+
+  -  Added interface-ethernet-grouping to Port-channel interface.
+
+  -  Added storm-control action shutdown|trap config items.
+     (Issue tracker: #16046)
+
+  -  Added support for 'sequence' keyword to ipv6 access-list
+     (Issue tracker: #16156)
+
+  -  YANG data model updates
+     ip pim vrf
+     (Issue tracker: #15682)
+
+  -  YANG data interface model updates
+     interface LISP
+     interface Tunnel
+     interface Ethernet (for XE)
+     interface MFR - Multilink Frame Relay bundle
+     interface * / switchport
+
+  -  YANG data routing model updates
+     router rip
+     router eigrp
+     router ospf vrf
+     router * / distribute-list
+
+  -  New YANG data model top containers
+     track
+     pnp profile
+     pseudowire-class
+
+  -  YANG data model updates
+     event manager applet / action
+
+  -  YANG data model updates
+     l3vpn encapsulation
+
+  -  YANG data model updates
+      card
+
+  -  YANG data model updates
+      ip explicit-path
+      ip flow-aggregation cache
+
+
+Corrections:
+
+  -  Moved table-map,mls,policer,class-map and policy-map to before interface.
+     (Issue tracker: #16091, #15854)
+
+  -  Added error checks:
+     'please remove the service-policy on the zone-pair'
+     'in use, cannot'
+     (Issue tracker: #16093)
+
+  -  Remodelled interface/ip access-group to support both in and out entries.
+     (Issue tracker: #16045)
+
+  -  Display 'switchport port-security' on a separate line.
+
+  -  Fixed order dependency issues in policy-map/class/police when
+     switching between an aggregate and policer.
+     (Issue tracker: #16574)
+
+  -  Fixed dependency between interface switchport and service instance
+     delete.
+     (Issue tracker: #16792)
+
+  -  Fixed problem with 'no media-type' clearing duplex on interface.
+     (Issue tracker: #16792)
+
+  -  Fixed policy-map / class / bandwidth percent modification order
+     dependency problem.
+
+  -  Fixed order dependency problems in policy-map / class / random-detect
+     dscp, discard and precedence.
+     (Issue tracker: #16914)
+
+  -  Repaired support for multiple certificates.
+
+  -  Fixed typo in access-list.
+     (Issue tracker: #15626)
+
+  -  YANG data routing model bugfixes
+      ip
+      ipv6
+
+  -  YANG data routing model bugfixes
+      service
+
+  -  YANG data routing model bugfixes
+      snmp-server host vrf
+
+  -  YANG data routing model bugfixes
+      vrf definition
+
+  -  YANG data routing model bugfixes
+      aaa
+
+  -  YANG data routing model bugfixes
+      interface * / service-policy
+
+  -  YANG data routing model bugfixes
+      access-list
+
+  -  YANG data routing model bugfixes
+      ip domain-name
+      ip domain-list
+      ip domain-lookup
+
+This NED does require NCS version 3.2.2 or later.
+
+
+cisco-ios v3.0.2 [April 30, 2014]
+=================================
+
+Enhancements:
+  -  Implemented support for interface service instances
+     (Issue tracker: #15246)
+
+  -  Added check in java for commit error "not configured"
+
+  -  Updated YANG data model
+
+
+cisco-ios v3.0.1 [April 7, 2014]
+================================
+
+Enhancements:
+  -  Added basic support for Locator/ID Separation Protocol (LISP)
+
+  -  Added support for config overwrite after OS upgrade.
+     (Issue tracker: #14618)
+
+
+cisco-ios v3.0 [March 4, 2014]
+==============================
+
+This release is function wise equivalent to the previous release, which was 1.8.
+The only difference is that this NED now is maintained using
+a new product life-cycle which is independent of the NCS release life-cycle.
+
+The version number 3.0 has been chosen to indicate a common baseline for
+all NEDs, which is higher than any previous NED version.
+
+For this NED no upgrades are necessary.
+
+
+===============================================================================
+The Tail-f package: cisco-ios NED was initially imported 2014-02-25

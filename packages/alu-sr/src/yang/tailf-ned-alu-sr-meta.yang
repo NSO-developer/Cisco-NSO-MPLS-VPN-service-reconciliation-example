@@ -1,0 +1,173 @@
+module tailf-ned-alu-sr-meta {
+  namespace 'http://tail-f.com/ned/alu-sr/meta';
+  prefix alu-meta;
+
+  import tailf-common {
+    prefix tailf;
+  }
+
+  import tailf-ncs {
+    prefix ncs;
+  }
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+
+  grouping platform-info-grouping {
+    container platform {
+      tailf:info "Device specific information";
+      presence true;
+
+      leaf machine {
+        tailf:info "Alcatel Lucent device type information";
+        type string;
+      }
+
+      leaf os-version {
+        tailf:info "Alcatel Lucent OS running on the device";
+        type string;
+      }
+    }
+  }
+
+   grouping admin-save-behaviour-grouping {
+    leaf alu-sr-admin-save-failed-behaviour {
+      tailf:info "Behaviour of the alu-sr NED on failed admin save command";
+      description
+        "Allows to define behaviour for the case when 'admin save' command
+        fails.  The default behaviour is to commit the transaction since
+        failed 'admin save' usually means that the permanent memory is
+        corrupted, but allows for normal network operation because the
+        changes can be applied to running configuration. To change this
+        behaviour to revert the changes on failed 'admin save' set this leaf
+        to 'abort-transaction'.";
+
+      type enumeration {
+        enum commit-transaction;
+        enum abort-transaction;
+      }
+    }
+  }
+
+   grouping trans-id-method-grouping {
+    leaf alu-sr-transaction-id-method {
+      tailf:info "Method of the alu-sr NED to use for calculating "
+                +"a transaction id. Typically used for check-sync operations";
+      type enumeration {
+        enum config-hash {
+          tailf:info "Use a snapshot of the running config for calculation.";
+        }
+        enum rollback-timestamp {
+          tailf:info "Use the timestamp of the latest rollback checkpoint "
+              +"for calculation. The system rollback feature must be on.";
+        }
+      }
+    }
+  }
+
+  grouping transactional-config-grouping {
+    leaf alu-sr-transactional-config {
+      tailf:info "Make the alu-sr NED use the transactional configuration"
+                +" feature available on some ALU devices.";
+      type enumeration {
+        enum disabled {
+          tailf:info "Apply configuration the standard way, one-by-one. "
+              +"(default)";
+        }
+        enum enabled {
+          tailf:info "Apply configuration into a candidate and then commit it."
+              +"The candidate feature must be enabled on the device.";
+        }
+      }
+    }
+  }
+
+  grouping shutdown-before-config-grouping {
+    leaf alu-sr-do-shutdown-before-apply-config {
+      tailf:info "Make the alu-sr NED automatically pull config objects into "
+                 +"state 'shutdown' before any related config leafs are "
+                 +"altered";
+
+      type enumeration {
+        enum disabled {
+          tailf:info "Apply configuration the standard way. (default)";
+        }
+        enum enabled {
+          tailf:info "Pull the config object into state 'shutdown' before"
+                    +" applying new config. The state is automatically restored"
+                    +" afterwards.";
+        }
+      }
+      default disabled;
+    }
+  }
+
+  grouping proxy-settings-grouping {
+    container alu-sr-proxy-settings {
+      presence true;
+      leaf remote-connection {
+        tailf:info "Connection type between proxy and device";
+        mandatory true;
+        type enumeration {
+          enum "ssh";
+          enum "telnet";
+          enum "serial";
+        }
+      }
+      leaf remote-address {
+        tailf:info "Address of host behind the proxy";
+        tailf:display-when "not (../remote-connection='serial')";
+        type inet:ip-address;
+      }
+      leaf remote-port {
+        tailf:info "Port of host behind the proxy";
+        tailf:display-when "not (../remote-connection='serial')";
+        type uint16;
+      }
+      leaf remote-user {
+        tailf:info "User name on the device behind the proxy";
+        mandatory true;
+        type string;
+      }
+      leaf remote-password {
+        tailf:info "Password on the device behind the proxy";
+        mandatory true;
+        type tailf:aes-cfb-128-encrypted-string;
+      }
+      leaf proxy-prompt {
+        tailf:info "Prompt pattern on the proxy host";
+        tailf:display-when "not (../remote-connection='serial')";
+        type string;
+      }
+    }
+  }
+
+  augment "/ncs:devices/ncs:global-settings/ncs:ned-settings" {
+    uses admin-save-behaviour-grouping;
+    uses trans-id-method-grouping;
+    uses transactional-config-grouping;
+    uses shutdown-before-config-grouping;
+  }
+
+  augment "/ncs:devices/ncs:profiles/ncs:profile/ncs:ned-settings" {
+    uses admin-save-behaviour-grouping;
+    uses trans-id-method-grouping;
+    uses transactional-config-grouping;
+    uses shutdown-before-config-grouping;
+  }
+
+  augment "/ncs:devices/ncs:device/ncs:ned-settings" {
+   when "../ncs:device-type/ncs:cli/ncs:ned-id = 'alu-sr-id:alu-sr'";
+    uses admin-save-behaviour-grouping;
+    uses trans-id-method-grouping;
+    uses transactional-config-grouping;
+    uses shutdown-before-config-grouping;
+    uses proxy-settings-grouping;
+  }
+
+  augment "/ncs:devices/ncs:device" {
+    when "ncs:device-type/ncs:cli/ncs:ned-id = 'alu-sr-id:alu-sr'";
+    uses platform-info-grouping;
+  }
+}

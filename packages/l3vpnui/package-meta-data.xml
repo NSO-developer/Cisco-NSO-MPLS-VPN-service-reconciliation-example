@@ -1,0 +1,7 @@
+<ncs-package xmlns="http://tail-f.com/ns/ncs-packages">
+  <name>l3vpnui</name>
+  <package-version>1.0</package-version>
+  <description>L3 VPN WebUI</description>
+  <ncs-min-version>3.0</ncs-min-version>
+
+</ncs-package>
