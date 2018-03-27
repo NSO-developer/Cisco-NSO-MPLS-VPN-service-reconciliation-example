@@ -9,6 +9,8 @@ The reconciliation logic is located here: https://github.com/NSO-developer/Cisco
 
 To run it:
 
+0) Copy the alu-sr, juniper-junos, cisco-ios and cisco-iosxr  neds from the $NCS_DIR/examples.ncs/service-provider/mpls-vpn/packages
+
 1) Build the demo: rogaglia$ make all start
 
 2) Create a VPN demo service: rogaglia$ python create-vpn.py 
@@ -121,4 +123,3 @@ admin@ncs(config)# <br />
 We can list the service and the refcounts in the device configurations:<br />
 admin@ncs# show running-config vpn <br />
 admin@ncs# show running-config devices device pe0 | display service-meta-data <br />
-# Cisco-NSO-MPLS-VPN-service-reconciliation-example
